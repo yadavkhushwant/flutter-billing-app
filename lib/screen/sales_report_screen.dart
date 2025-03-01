@@ -57,10 +57,9 @@ class SalesReportScreen extends StatelessWidget {
   }
 
   Future<void> printInvoice(dynamic rowData,SalesReportController salesController, CustomerController customerController) async {
-    print(rowData.toString());
-    
+
     var customer = _getCustomerDetails( rowData['customer_id'], customerController.customers);
-    var items = await salesController.getSalesItems([rowData['id']]);
+    var items = await salesController.getSalesItems(rowData['id']);
 
     var invoiceDate = rowData['sale_date'] ?? "";
     var invoiceNumber = rowData['invoice_number'] ?? "";
@@ -110,7 +109,9 @@ class SalesReportScreen extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.remove_red_eye_outlined, color: Colors.blue, size: 16),
                 onPressed: () {
-                  if (rowData != null) {}
+                  if (rowData != null) {
+                    Get.toNamed('/invoice-details', arguments: rowData);
+                  }
                 },
               ),
             ],

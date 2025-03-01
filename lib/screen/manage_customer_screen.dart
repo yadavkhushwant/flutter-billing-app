@@ -15,6 +15,7 @@ class ManageCustomerScreen extends StatelessWidget {
   List<PlutoRow> _buildRows() {
     return customerController.customers.map((customer) {
       return PlutoRow(cells: {
+        'action': PlutoCell(value: ''),
         'srNo': PlutoCell(value: ''),
         'name': PlutoCell(value: customer['name'] ?? ''),
         'locality': PlutoCell(value: customer['locality'] ?? ''),
@@ -46,6 +47,29 @@ class ManageCustomerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<PlutoColumn> columns = [
+      PlutoColumn(
+        title: 'Action',
+        field: 'action',
+        type: PlutoColumnType.text(),
+        enableEditingMode: false,
+        renderer: (PlutoColumnRendererContext context) {
+          final Map<String, dynamic>? rowData =
+          context.row.cells['data']?.value as Map<String, dynamic>?;
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.remove_red_eye_outlined, color: Colors.blue, size: 16),
+                onPressed: () {
+                  if (rowData != null) {
+                    Get.toNamed('/customer-details', arguments: rowData);
+                  }
+                },
+              ),
+            ],
+          );
+        },
+      ),
       getPlutoSrNoColumn(),
       PlutoColumn(
         title: 'Name',

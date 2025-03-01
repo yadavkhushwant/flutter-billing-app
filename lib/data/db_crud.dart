@@ -152,6 +152,35 @@ class SalesReportRepository {
     ''', [monthStr, yearStr]);
   }
 
+  /// Retrieves all sales for a customer with optional filters for month and year.
+  Future<List<Map<String, dynamic>>> getSalesForCustomer({
+    required int customerId,
+    int? month,
+    int? year,
+  }) async {
+    final db = await _dbHelper.database;
+    final List<String> whereClauses = ['customer_id = ?'];
+    final List<dynamic> whereArgs = [customerId];
+
+    // If month filter is provided, add it to the query.
+    if (month != null) {
+      String monthStr = month.toString().padLeft(2, '0');
+      whereClauses.add("strftime('%m', sale_date) = ?");
+      whereArgs.add(monthStr);
+    }
+
+    // If year filter is provided, add it to the query.
+    if (year != null) {
+      String yearStr = year.toString();
+      whereClauses.add("strftime('%Y', sale_date) = ?");
+      whereArgs.add(yearStr);
+    }
+
+    final String whereString = whereClauses.join(' AND ');
+    return await db.query('sales', where: whereString, whereArgs: whereArgs);
+  }
+
+
   /// Deletes a sale by id.
   Future<int> deleteSale(int id) async {
     final db = await _dbHelper.database;
@@ -162,10 +191,41 @@ class SalesReportRepository {
   }
 
   Future<List<Map<String, dynamic>>> getSalesItems(dynamic saleId) async {
-    print("khushwant: "+saleId.toString());
     final db = await _dbHelper.database;
     return await db.query('sale_items', where: 'sale_id = ?', whereArgs: [saleId]);
   }
+
+  /// Updates the invoice items for the given invoice ID.
+  /// Deletes all existing sale_items for this invoice and then inserts the new ones.
+  Future<void> updateInvoiceItems(int invoiceId, List<Map<String, dynamic>> items) async {
+    final db = await _dbHelper.database;
+    await db.transaction((txn) async {
+      // Remove all existing sale_items for this invoice.
+      await txn.delete('sale_items', where: 'sale_id = ?', whereArgs: [invoiceId]);
+
+      double totalAmount = 0.0;
+
+      // Insert each new item and compute total amount.
+      for (var item in items) {
+        final mutableItem = Map<String, dynamic>.from(item);
+        mutableItem['sale_id'] = invoiceId;
+        await txn.insert('sale_items', mutableItem);
+
+        if (mutableItem['total'] != null) {
+          totalAmount += (mutableItem['total'] as num).toDouble();
+        }
+      }
+
+      // Update the total amount in the sales table.
+      await txn.update(
+        'sales',
+        {'total_amount': totalAmount},
+        where: 'id = ?',
+        whereArgs: [invoiceId],
+      );
+    });
+  }
+
 }
 
 class SettingsRepository {
@@ -197,3 +257,72 @@ class SettingsRepository {
     }
   }
 }
+
+class PaymentRepository {
+  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
+
+  Future<int> addPayment(Map<String, dynamic> paymentData) async {
+    final db = await _dbHelper.database;
+    return await db.insert('customer_payments', paymentData);
+  }
+
+  /// Retrieves payments with optional month/year filters.
+  Future<List<Map<String, dynamic>>> getPayments({
+    int? month,
+    int? year,
+  }) async {
+    final db = await _dbHelper.database;
+    List<String> whereClauses = [];
+    List<dynamic> whereArgs = [];
+    if (month != null) {
+      String monthStr = month.toString().padLeft(2, '0');
+      whereClauses.add("strftime('%m', payment_date) = ?");
+      whereArgs.add(monthStr);
+    }
+    if (year != null) {
+      String yearStr = year.toString();
+      whereClauses.add("strftime('%Y', payment_date) = ?");
+      whereArgs.add(yearStr);
+    }
+    String? whereString =
+    whereClauses.isNotEmpty ? whereClauses.join(" AND ") : null;
+    return await db.query('customer_payments',
+        where: whereString, whereArgs: whereArgs);
+  }
+
+  /// Retrieves payments for a given customer, with optional month/year filters.
+  Future<List<Map<String, dynamic>>> getPaymentsForCustomer({
+    required int customerId,
+    int? month,
+    int? year,
+  }) async {
+    final db = await _dbHelper.database;
+    List<String> whereClauses = ['customer_id = ?'];
+    List<dynamic> whereArgs = [customerId];
+    if (month != null) {
+      String monthStr = month.toString().padLeft(2, '0');
+      whereClauses.add("strftime('%m', payment_date) = ?");
+      whereArgs.add(monthStr);
+    }
+    if (year != null) {
+      String yearStr = year.toString();
+      whereClauses.add("strftime('%Y', payment_date) = ?");
+      whereArgs.add(yearStr);
+    }
+    String whereString = whereClauses.join(" AND ");
+    return await db.query('customer_payments',
+        where: whereString, whereArgs: whereArgs);
+  }
+
+  Future<int> updatePayment(int id, Map<String, dynamic> payment) async {
+    final db = await _dbHelper.database;
+    return await db
+        .update('customer_payments', payment, where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<int> deletePayment(int id) async {
+    final db = await _dbHelper.database;
+    return await db.delete('customer_payments', where: 'id = ?', whereArgs: [id]);
+  }
+}
+

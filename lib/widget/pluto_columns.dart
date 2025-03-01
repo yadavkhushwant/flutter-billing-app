@@ -5,6 +5,7 @@ PlutoColumn getPlutoSrNoColumn() {
   return PlutoColumn(
     title: 'S.No',
     field: 'srNo',
+    width: 80,
     type: PlutoColumnType.text(),
     enableEditingMode: false,
     renderer: (PlutoColumnRendererContext context) {

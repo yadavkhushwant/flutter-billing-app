@@ -116,6 +116,11 @@ class SideNavigation extends StatelessWidget {
               routeName: '/manage-products'),
 
           buildNavItem(context,
+              icon: Icons.money_sharp,
+              title: "Payments",
+              routeName: '/manage-payments'),
+
+          buildNavItem(context,
               icon: Icons.settings, title: "Settings", routeName: '/settings'),
           // Add more navigation items here.
         ],

@@ -103,11 +103,24 @@ class DatabaseHelper {
       address TEXT
     )
   ''');
+
+    await db.execute('''
+  CREATE TABLE customer_payments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_id INTEGER,
+    payment_date TEXT,
+    amount REAL,
+    payment_reference TEXT, -- Text field for any reference (e.g., invoice number or manual reference)
+    notes TEXT,
+    FOREIGN KEY (customer_id) REFERENCES customer (id)
+  )
+''');
+
   }
 
   /// Inserts a complete sale (invoice) along with its line items in a transaction.
   Future<int> insertSaleWithItems(
-      Map<String, dynamic> sale, List<Map<String, dynamic>> saleItems) async {
+      Map<String, dynamic> sale, List<Map<String, dynamic>> saleItems, [double paidAmount = 0.0]) async {
     final db = await database;
     return await db.transaction((txn) async {
       // Insert the master sale record.
@@ -127,6 +140,18 @@ class DatabaseHelper {
         item['sale_id'] = saleId;
         await txn.insert('sale_items', item);
       }
+
+      if(paidAmount > 0){
+        var payment = {
+          'customer_id': sale['customer_id'],
+          'payment_date': DateTime.now().toIso8601String(),
+          'amount': paidAmount,
+          'payment_reference': invoiceNumber,
+        };
+
+        await txn.insert('customer_payments', payment);
+      }
+
       return saleId;
     });
   }

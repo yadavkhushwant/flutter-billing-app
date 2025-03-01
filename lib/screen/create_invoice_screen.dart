@@ -1,6 +1,7 @@
 import 'package:billing_application/controller/uom_controller.dart';
 import 'package:billing_application/utils/print_invoice.dart';
 import 'package:billing_application/widget/create_product_dialog.dart';
+import 'package:billing_application/widget/input_decoration.dart';
 import 'package:billing_application/widget/main_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -58,12 +59,9 @@ class CreateInvoiceScreen extends StatelessWidget {
                     popupProps: PopupProps.menu(
                       showSearchBox: true,
                     ),
-                    // dropdownDecoratorProps: DropDownDecoratorProps(
-                    //   decoration: const InputDecoration(
-                    //     labelText: "Select Customer",
-                    //     border: OutlineInputBorder(),
-                    //   ),
-                    // ),
+                        decoratorProps:DropDownDecoratorProps(
+                            decoration: getInputDecoration('Customer' )
+                        ),
                     onChanged: (customer) {
                       if (customer != null) {
                         invoiceController.selectedCustomer.value =
@@ -191,12 +189,9 @@ class CreateInvoiceScreen extends StatelessWidget {
                               popupProps: PopupProps.menu(
                                 showSearchBox: true,
                               ),
-                              // dropdownDecoratorProps: DropDownDecoratorProps(
-                              //   decoration: const InputDecoration(
-                              //     labelText: "Select Product",
-                              //     border: OutlineInputBorder(),
-                              //   ),
-                              // ),
+                              decoratorProps:DropDownDecoratorProps(
+                                  decoration: getInputDecoration('Product' )
+                              ),
                               onChanged: (product) {
                                 if (product != null) {
                                   selectedProductId.value =
@@ -246,8 +241,7 @@ class CreateInvoiceScreen extends StatelessWidget {
                         Expanded(
                           child: TextFormField(
                             controller: quantityController,
-                            decoration:
-                                const InputDecoration(labelText: "Quantity"),
+                            decoration: getInputDecoration("Quantity"),
                             keyboardType: TextInputType.number,
                           ),
                         ),
@@ -255,8 +249,7 @@ class CreateInvoiceScreen extends StatelessWidget {
                         Expanded(
                           child: TextFormField(
                             controller: rateController,
-                            decoration:
-                                const InputDecoration(labelText: "Rate"),
+                            decoration: getInputDecoration( "Rate"),
                             keyboardType: TextInputType.number,
                           ),
                         ),
@@ -339,13 +332,39 @@ class CreateInvoiceScreen extends StatelessWidget {
               }),
               const SizedBox(height: 24),
               // Total Amount display
-              Obx(() {
-                return Text(
-                  "Total Amount: ${invoiceController.totalAmount.toStringAsFixed(2)}",
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                );
-              }),
+              Row(
+                children: [
+                  Expanded(
+                    child: Obx(() => TextFormField(
+                      decoration: const InputDecoration(labelText: "Total Amount"),
+                      keyboardType: TextInputType.number,
+                      controller: TextEditingController(text: invoiceController.totalAmount.value.toStringAsFixed(2)),
+                      enabled: false,
+                    )),
+
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: TextFormField(
+                      decoration: getInputDecoration("Paid Amount"),
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) {
+                        double paid = double.tryParse(value) ?? 0.0;
+                        invoiceController.updatePaidAmount(paid);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Obx(() => TextFormField(
+                      decoration: getInputDecoration("Pending Amount"),
+                      keyboardType: TextInputType.number,
+                      controller: TextEditingController(text: invoiceController.pendingAmount.value.toStringAsFixed(2)),
+                      enabled: false,
+                    )),
+                  ),
+                ],
+              ),
               const SizedBox(height: 24),
               // Save Invoice Button
               Center(

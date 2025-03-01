@@ -1,5 +1,4 @@
 import 'package:billing_application/controller/uom_controller.dart';
-import 'package:billing_application/utils/ui_utils.dart';
 import 'package:billing_application/widget/create_uom_dialog.dart';
 import 'package:billing_application/widget/edit_uom_dialog.dart';
 import 'package:billing_application/widget/main_scaffold.dart';
