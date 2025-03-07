@@ -40,7 +40,7 @@ class DatabaseHelper {
       city TEXT,
       state TEXT,
       pin TEXT,
-      phone TEXT,
+      phone TEXT UNIQUE,
       email TEXT
     )
   ''');
@@ -120,7 +120,7 @@ class DatabaseHelper {
 
   /// Inserts a complete sale (invoice) along with its line items in a transaction.
   Future<int> insertSaleWithItems(
-      Map<String, dynamic> sale, List<Map<String, dynamic>> saleItems, [double paidAmount = 0.0]) async {
+      Map<String, dynamic> sale, List<Map<String, dynamic>> saleItems, [int paidAmount = 0]) async {
     final db = await database;
     return await db.transaction((txn) async {
       // Insert the master sale record.

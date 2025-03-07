@@ -1,8 +1,10 @@
 import 'package:billing_application/controller/payment_controller.dart';
 import 'package:billing_application/widget/create_payment_dialog.dart';
 import 'package:billing_application/widget/edit_payment_dialog.dart';
+import 'package:billing_application/widget/input_decoration.dart';
 import 'package:billing_application/widget/main_scaffold.dart';
 import 'package:billing_application/widget/pluto_columns.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
@@ -10,14 +12,29 @@ import 'package:pluto_grid/pluto_grid.dart';
 class ManagePaymentScreen extends StatelessWidget {
   const ManagePaymentScreen({super.key});
 
+  dynamic _getCustomerDetails(dynamic customerId, List<dynamic> customerList) {
+    if (customerId == null) return {};
+    try {
+      return customerList.firstWhere((element) => element['id'] == customerId);
+    } catch (e) {
+      return {};
+    }
+  }
+
   List<PlutoRow> _buildRows(PaymentController controller) {
     return controller.payments.map((payment) {
+      var customer =
+      _getCustomerDetails(payment['customer_id'], controller.customers);
       return PlutoRow(cells: {
         'srNo': PlutoCell(value: ''),
-        'customer': PlutoCell(value: payment['customer_id'] ?? ''),
+        'customerName': PlutoCell(value: customer['name']?.toString() ?? ''),
+        'customerLocality':
+        PlutoCell(value: customer['locality']?.toString() ?? ''),
+        'customerMobile': PlutoCell(value: customer['phone']?.toString() ?? ''),
         'paymentDate': PlutoCell(value: payment['payment_date'] ?? ''),
         'amount': PlutoCell(value: payment['amount']?.toString() ?? ''),
-        'paymentReference': PlutoCell(value: payment['payment_reference'] ?? ''),
+        'paymentReference':
+        PlutoCell(value: payment['payment_reference'] ?? ''),
         'notes': PlutoCell(value: payment['notes'] ?? ''),
         'actions': PlutoCell(value: ''),
         'data': PlutoCell(value: payment),
@@ -46,8 +63,8 @@ class ManagePaymentScreen extends StatelessWidget {
     final List<PlutoColumn> columns = [
       getPlutoSrNoColumn(),
       PlutoColumn(
-        title: 'Customer',
-        field: 'customer',
+        title: 'Customer Name',
+        field: 'customerName',
         type: PlutoColumnType.text(),
         enableEditingMode: false,
       ),
@@ -60,6 +77,18 @@ class ManagePaymentScreen extends StatelessWidget {
       PlutoColumn(
         title: 'Payment Date',
         field: 'paymentDate',
+        type: PlutoColumnType.text(),
+        enableEditingMode: false,
+      ),
+      PlutoColumn(
+        title: 'Customer Locality',
+        field: 'customerLocality',
+        type: PlutoColumnType.text(),
+        enableEditingMode: false,
+      ),
+      PlutoColumn(
+        title: 'Customer Mobile',
+        field: 'customerMobile',
         type: PlutoColumnType.text(),
         enableEditingMode: false,
       ),
@@ -88,30 +117,40 @@ class ManagePaymentScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Filters row: customer, month, year, and a toggle for "show all" payments.
+            // Filters row: customer (using DropdownSearch), month, year, and a toggle for "show all" payments.
             Obx(() {
+              var selectedCustomer = paymentController.selectedCustomerId.value == null
+                  ? null
+                  : _getCustomerDetails(paymentController.selectedCustomerId.value, paymentController.customers);
               return Row(
                 children: [
-                  // Customer Dropdown.
-                  DropdownButton<int?>(
-                    value: paymentController.selectedCustomerId.value,
-                    hint: const Text("All Customers"),
-                    items: [
-                      const DropdownMenuItem<int?>(
-                        value: null,
-                        child: Text("All Customers"),
+                  // Customer Dropdown using search.
+                  Expanded(
+                    child: DropdownSearch<Map<String, dynamic>>(
+                      selectedItem: selectedCustomer,
+                      items: (filter, sortOption) => paymentController.customers.toList(),
+                      compareFn: (item1, item2) => item1['id'] == item2['id'],
+                      popupProps: PopupProps.menu(
+                        showSearchBox: true,
                       ),
-                      ...paymentController.customers.map((customer) {
-                        return DropdownMenuItem<int>(
-                          value: customer['id'],
-                          child: Text(customer['name']),
-                        );
-                      }).toList(),
-                    ],
-                    onChanged: (value) {
-                      paymentController.selectedCustomerId.value = value;
-                      paymentController.loadPayments();
-                    },
+                      decoratorProps: DropDownDecoratorProps(
+                          decoration: getInputDecoration('Customer', IconButton(onPressed: (){
+                            paymentController.selectedCustomerId.value = null;
+                            paymentController.loadPayments();
+                          }, icon:Icon(Icons.clear)))
+                      ),
+                      onChanged: (customer) {
+                        if (customer != null) {
+                          paymentController.selectedCustomerId.value = customer['id'];
+                        } else {
+                          paymentController.selectedCustomerId.value = null;
+                        }
+                        paymentController.loadPayments();
+                      },
+                      itemAsString: (customer) {
+                        return "${customer['name']} - ${customer['locality'] ?? ''}";
+                      },
+                    ),
                   ),
                   const SizedBox(width: 16),
                   // Month Dropdown – show if no customer filter or when not in "show all" mode.
@@ -157,7 +196,8 @@ class ManagePaymentScreen extends StatelessWidget {
                         Obx(() => Checkbox(
                           value: paymentController.showAllForCustomer.value,
                           onChanged: (val) {
-                            paymentController.showAllForCustomer.value = val!;
+                            paymentController.showAllForCustomer.value =
+                            val!;
                             paymentController.loadPayments();
                           },
                         )),
@@ -201,7 +241,8 @@ class ManagePaymentScreen extends StatelessWidget {
                   columns: columns,
                   rows: rows,
                   onLoaded: (PlutoGridOnLoadedEvent event) {
-                    paymentController.gridStateManager.value = event.stateManager;
+                    paymentController.gridStateManager.value =
+                        event.stateManager;
                     paymentController.gridStateManager.value!
                         .setShowColumnFilter(true);
                     paymentController.gridStateManager.value!

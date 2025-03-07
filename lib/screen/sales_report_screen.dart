@@ -39,8 +39,7 @@ class SalesReportScreen extends StatelessWidget {
   List<PlutoRow> _buildRows(
       SalesReportController controller, CustomerController customerController) {
     return controller.sales.map((sale) {
-      var customer = _getCustomerDetails(
-          sale['customer_id'], customerController.customers);
+      var customer = _getCustomerDetails(sale['customer_id'], customerController.customers);
       return PlutoRow(cells: {
         'action': PlutoCell(value: ''),
         'srNo': PlutoCell(value: ''),
@@ -48,8 +47,8 @@ class SalesReportScreen extends StatelessWidget {
         'saleDate': PlutoCell(value: sale['sale_date'] ?? ''),
         'totalAmount': PlutoCell(value: sale['total_amount']?.toString() ?? ''),
         'customerName': PlutoCell(value: customer['name']?.toString() ?? ''),
-        'customerLocality':
-            PlutoCell(value: customer['locality']?.toString() ?? ''),
+        'customerLocality': PlutoCell(value: customer['locality']?.toString() ?? ''),
+        'customerMobile': PlutoCell(value: customer['phone']?.toString() ?? ''),
         'actions': PlutoCell(value: ''),
         'data': PlutoCell(value: sale),
       });
@@ -146,6 +145,12 @@ class SalesReportScreen extends StatelessWidget {
       PlutoColumn(
         title: 'Customer Locality',
         field: 'customerLocality',
+        type: PlutoColumnType.text(),
+        enableEditingMode: false,
+      ),
+      PlutoColumn(
+        title: 'Customer Mobile',
+        field: 'customerMobile',
         type: PlutoColumnType.text(),
         enableEditingMode: false,
       ),

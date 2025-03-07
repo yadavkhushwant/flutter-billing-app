@@ -1,3 +1,4 @@
+import 'package:billing_application/utils/form_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:billing_application/controller/customer_controller.dart';
@@ -29,13 +30,12 @@ class CreateCustomerDialog extends StatelessWidget {
               TextFormField(
                 controller: nameController,
                 decoration: const InputDecoration(labelText: "Name"),
-                validator: (value) => (value == null || value.isEmpty)
-                    ? "Please enter a name"
-                    : null,
+                  validator: (value) =>validateEmpty(value, "Name")
               ),
               TextFormField(
                 controller: localityController,
                 decoration: const InputDecoration(labelText: "Locality"),
+                validator: (value) =>validateEmpty(value, "Locality")
               ),
               TextFormField(
                 controller: cityController,
@@ -52,6 +52,7 @@ class CreateCustomerDialog extends StatelessWidget {
               TextFormField(
                 controller: phoneController,
                 decoration: const InputDecoration(labelText: "Phone"),
+                validator: (value) =>validateEmpty(value, "Phone")
               ),
               TextFormField(
                 controller: emailController,

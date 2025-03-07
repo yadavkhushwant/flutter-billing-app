@@ -7,3 +7,13 @@ String getFinancialYear(DateTime date) {
   }
   return "$startYear-${startYear + 1}";
 }
+
+
+String getFormattedDate(String date) {
+  try{
+    final DateTime dateTime = DateTime.parse(date);
+    return "${dateTime.day}-${dateTime.month}-${dateTime.year}";
+  } catch(e){
+    return date;
+  }
+}

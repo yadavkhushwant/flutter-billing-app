@@ -11,7 +11,7 @@ class EditProductDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final ProductController productController = Get.find<ProductController>();
     final UomController uomController = Get.find<UomController>();
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
     // Prepopulate text controllers.
     final TextEditingController nameController =
@@ -25,7 +25,7 @@ class EditProductDialog extends StatelessWidget {
       title: const Text("Edit Product"),
       content: SingleChildScrollView(
         child: Form(
-          key: _formKey,
+          key: formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -82,7 +82,7 @@ class EditProductDialog extends StatelessWidget {
         ),
         ElevatedButton(
           onPressed: () {
-            if (_formKey.currentState!.validate()) {
+            if (formKey.currentState!.validate()) {
               final updatedProduct = {
                 'name': nameController.text,
                 'uom_id': selectedUomId.value,

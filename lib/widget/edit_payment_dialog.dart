@@ -10,7 +10,7 @@ class EditPaymentDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final PaymentController paymentController = Get.find<PaymentController>();
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
     final TextEditingController paymentDateController =
     TextEditingController(text: payment['payment_date']);
     final TextEditingController amountController =
@@ -24,7 +24,7 @@ class EditPaymentDialog extends StatelessWidget {
       title: const Text("Edit Payment"),
       content: SingleChildScrollView(
         child: Form(
-          key: _formKey,
+          key: formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -87,7 +87,7 @@ class EditPaymentDialog extends StatelessWidget {
         ),
         ElevatedButton(
           onPressed: () {
-            if (_formKey.currentState?.validate() ?? false) {
+            if (formKey.currentState?.validate() ?? false) {
               final updatedPayment = {
                 'payment_date': paymentDateController.text,
                 'amount': double.tryParse(amountController.text) ?? 0.0,

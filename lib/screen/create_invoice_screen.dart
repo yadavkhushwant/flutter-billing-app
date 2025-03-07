@@ -1,4 +1,5 @@
 import 'package:billing_application/controller/uom_controller.dart';
+import 'package:billing_application/utils/data_helpers.dart';
 import 'package:billing_application/utils/print_invoice.dart';
 import 'package:billing_application/widget/create_product_dialog.dart';
 import 'package:billing_application/widget/input_decoration.dart';
@@ -18,10 +19,10 @@ class CreateInvoiceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Ensure controllers are available.
     final CreateInvoiceController invoiceController =
-        Get.put(CreateInvoiceController());
+    Get.put(CreateInvoiceController());
     final CustomerController customerController = Get.put(CustomerController());
     final ProductController productController = Get.put(ProductController());
-    Get.put(UomController());
+    final UomController uomController = Get.put(UomController());
 
     // Controllers for inline invoice item form.
     final TextEditingController quantityController = TextEditingController();
@@ -48,33 +49,33 @@ class CreateInvoiceScreen extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Expanded(
-                      child: DropdownSearch<Map<String, dynamic>>(
-                    // Provide a function that returns the list of customers.
-                    items: (filter, sortOption) {
-                      return customerController.customers.toList();
-                    },
-
-                    compareFn: (item1, item2) => item1['id'] == item2['id'],
-                    popupProps: PopupProps.menu(
-                      showSearchBox: true,
-                    ),
-                        decoratorProps:DropDownDecoratorProps(
-                            decoration: getInputDecoration('Customer' )
-                        ),
-                    onChanged: (customer) {
-                      if (customer != null) {
-                        invoiceController.selectedCustomer.value =
-                            customer['id'] as int;
-                        invoiceController.selectedCustomerDetails.value =
-                            customer;
-                      }
-                    },
-                    itemAsString: (customer) {
-                      if (customer == null) return "";
-                      return "${customer['name']} - ${customer['phone'] ?? 'No Phone'} - ${customer['locality'] ?? 'No Locality'}";
-                    },
-                  )),
+                  Obx(() {
+                    return Expanded(
+                        child: DropdownSearch<Map<String, dynamic>>(
+                          selectedItem:
+                          invoiceController.selectedCustomerDetails.value,
+                          items: (filter, sortOption) {
+                            return customerController.customers.toList();
+                          },
+                          compareFn: (item1, item2) => item1['id'] == item2['id'],
+                          popupProps: PopupProps.menu(
+                            showSearchBox: true,
+                          ),
+                          decoratorProps: DropDownDecoratorProps(
+                              decoration: getInputDecoration('Customer')),
+                          onChanged: (customer) {
+                            if (customer != null) {
+                              invoiceController.selectedCustomer.value =
+                              customer['id'] as int;
+                              invoiceController.selectedCustomerDetails.value =
+                                  customer;
+                            }
+                          },
+                          itemAsString: (customer) {
+                            return "${customer['name']} - ${customer['phone'] ?? 'No Phone'} - ${customer['locality'] ?? 'No Locality'}";
+                          },
+                        ));
+                  }),
                   const SizedBox(width: 16),
                   // New Customer Button
                   ElevatedButton.icon(
@@ -82,13 +83,13 @@ class CreateInvoiceScreen extends StatelessWidget {
                       // Open the create customer dialog.
                       // Assume the dialog returns the newly created customer data.
                       final newCustomer =
-                          await Get.dialog<Map<String, dynamic>>(
-                              const CreateCustomerDialog());
+                      await Get.dialog<Map<String, dynamic>>(
+                          const CreateCustomerDialog());
                       if (newCustomer != null) {
                         // Refresh the customer list. (Do not await if loadCustomers returns void.)
                         await customerController.loadCustomers();
                         invoiceController.selectedCustomer.value =
-                            newCustomer['id'] as int;
+                        newCustomer['id'] as int;
                         invoiceController.selectedCustomerDetails.value =
                             newCustomer;
                       }
@@ -180,28 +181,33 @@ class CreateInvoiceScreen extends StatelessWidget {
                             if (productController.products.isEmpty) {
                               return const Text("No products available");
                             }
+                            var selectedProduct =
+                            selectedProductId.value == null
+                                ? null
+                                : getProductDetails(selectedProductId.value,
+                                productController.products.toList());
                             return DropdownSearch<Map<String, dynamic>>(
-                              // Return the product list as a plain List.
+                              selectedItem: selectedProduct,
                               items: (filter, sortOption) =>
                                   productController.products.toList(),
                               compareFn: (item1, item2) =>
-                                  item1['id'] == item2['id'],
+                              item1['id'] == item2['id'],
                               popupProps: PopupProps.menu(
                                 showSearchBox: true,
                               ),
-                              decoratorProps:DropDownDecoratorProps(
-                                  decoration: getInputDecoration('Product' )
-                              ),
+                              decoratorProps: DropDownDecoratorProps(
+                                  decoration: getInputDecoration('Product')),
                               onChanged: (product) {
                                 if (product != null) {
                                   selectedProductId.value =
-                                      product['id'] as int;
+                                  product['id'] as int;
                                   selectedProductName.value =
                                       product['name'] ?? '';
+                                  rateController.text =
+                                      (product['rate'] ?? '').toString();
                                 }
                               },
                               itemAsString: (product) {
-                                if (product == null) return "";
                                 return product['name'] ?? "";
                               },
                             );
@@ -213,7 +219,7 @@ class CreateInvoiceScreen extends StatelessWidget {
                           onPressed: () async {
                             // Open the create product dialog.
                             final newProduct =
-                                await Get.dialog<Map<String, dynamic>>(
+                            await Get.dialog<Map<String, dynamic>>(
                               const CreateProductDialog(),
                             );
                             if (newProduct != null) {
@@ -222,7 +228,7 @@ class CreateInvoiceScreen extends StatelessWidget {
                               // Automatically select the newly created product.
                               selectedProductId.value = newProduct['id'] as int;
                               selectedProductName.value =
-                                  newProduct['name'] as String;
+                              newProduct['name'] as String;
                             }
                           },
                           icon: const Icon(Icons.add),
@@ -238,18 +244,31 @@ class CreateInvoiceScreen extends StatelessWidget {
                     // Quantity and Rate fields in a Row
                     Row(
                       children: [
+                        Expanded(child: Obx(() {
+                          var uomId = getProductDetails(selectedProductId.value,
+                              productController.products.toList())?['uom_id'];
+                          var uom = getUomDetails(uomId, uomController.uoms);
+                          return TextFormField(
+                            controller:
+                            TextEditingController(text: uom?['name']),
+                            decoration: getInputDecoration("UOM"),
+                            keyboardType: TextInputType.number,
+                            enabled: false,
+                          );
+                        })),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: TextFormField(
-                            controller: quantityController,
-                            decoration: getInputDecoration("Quantity"),
+                            controller: rateController,
+                            decoration: getInputDecoration("Rate"),
                             keyboardType: TextInputType.number,
                           ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
                           child: TextFormField(
-                            controller: rateController,
-                            decoration: getInputDecoration( "Rate"),
+                            controller: quantityController,
+                            decoration: getInputDecoration("Quantity"),
                             keyboardType: TextInputType.number,
                           ),
                         ),
@@ -336,20 +355,22 @@ class CreateInvoiceScreen extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Obx(() => TextFormField(
-                      decoration: const InputDecoration(labelText: "Total Amount"),
+                      decoration: getInputDecoration("Total Amount"),
                       keyboardType: TextInputType.number,
-                      controller: TextEditingController(text: invoiceController.totalAmount.value.toStringAsFixed(2)),
+                      controller: TextEditingController(
+                          text: invoiceController.totalAmount.value
+                              .toStringAsFixed(2)),
                       enabled: false,
                     )),
-
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: TextFormField(
                       decoration: getInputDecoration("Paid Amount"),
                       keyboardType: TextInputType.number,
+                      controller: invoiceController.paidAmountController,
                       onChanged: (value) {
-                        double paid = double.tryParse(value) ?? 0.0;
+                        int paid = int.tryParse(value) ?? 0;
                         invoiceController.updatePaidAmount(paid);
                       },
                     ),
@@ -359,7 +380,9 @@ class CreateInvoiceScreen extends StatelessWidget {
                     child: Obx(() => TextFormField(
                       decoration: getInputDecoration("Pending Amount"),
                       keyboardType: TextInputType.number,
-                      controller: TextEditingController(text: invoiceController.pendingAmount.value.toStringAsFixed(2)),
+                      controller: TextEditingController(
+                          text: invoiceController.pendingAmount.value
+                              .toStringAsFixed(2)),
                       enabled: false,
                     )),
                   ),
@@ -392,7 +415,7 @@ class CreateInvoiceScreen extends StatelessWidget {
                     // Optionally, navigate back or clear the form.
                   },
                   style:
-                      ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  ElevatedButton.styleFrom(backgroundColor: Colors.green),
                   child: const Text("Save Invoice"),
                 ),
               ),
@@ -412,7 +435,8 @@ class CreateInvoiceScreen extends StatelessWidget {
                     }
 
                     // Save the invoice and capture the returned data.
-                    final savedInvoiceData = await invoiceController.saveInvoice();
+                    final savedInvoiceData =
+                    await invoiceController.saveInvoice();
 
                     Get.snackbar(
                       "Success",
@@ -429,8 +453,6 @@ class CreateInvoiceScreen extends StatelessWidget {
                   child: const Text("Save & Print Invoice"),
                 ),
               ),
-
-
             ],
           ),
         ),

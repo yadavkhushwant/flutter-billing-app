@@ -1,6 +1,7 @@
 import 'package:billing_application/controller/customer_controller.dart';
 import 'package:billing_application/controller/invoice_details_controller.dart';
 import 'package:billing_application/controller/product_controller.dart';
+import 'package:billing_application/utils/data_helpers.dart';
 import 'package:billing_application/widget/input_decoration.dart';
 import 'package:billing_application/widget/main_scaffold.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -9,16 +10,6 @@ import 'package:get/get.dart';
 
 class InvoiceDetailScreen extends StatelessWidget {
   const InvoiceDetailScreen({super.key});
-
-  // Helper method to extract customer details.
-  dynamic _getCustomerDetails(dynamic customerId, List<dynamic> customerList) {
-    if (customerId == null) return {};
-    try {
-      return customerList.firstWhere((element) => element['id'] == customerId);
-    } catch (e) {
-      return {};
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,8 +35,7 @@ class InvoiceDetailScreen extends StatelessWidget {
     final selectedItemMap = RxMap<String, dynamic>();
 
     // Retrieve customer details.
-    final customer = _getCustomerDetails(
-        invoiceData['customer_id'], customerController.customers);
+    final customer = getCustomerDetails(invoiceData['customer_id'], customerController.customers);
 
     return MainScaffold(
       child: SingleChildScrollView(
@@ -165,7 +155,7 @@ class InvoiceDetailScreen extends StatelessWidget {
                               product['name'] as String;
                             }
                           },
-                          itemAsString: (product) => product?['name'] ?? '',
+                          itemAsString: (product) => product['name'] ?? '',
                         );
                       }),
                     ),

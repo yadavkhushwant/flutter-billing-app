@@ -9,7 +9,7 @@ class EditUomDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final UomController uomController = Get.find<UomController>();
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
     final TextEditingController nameController =
     TextEditingController(text: uom['name']);
 
@@ -17,7 +17,7 @@ class EditUomDialog extends StatelessWidget {
       title: const Text("Edit UOM"),
       content: SingleChildScrollView(
         child: Form(
-          key: _formKey,
+          key: formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -38,7 +38,7 @@ class EditUomDialog extends StatelessWidget {
         ),
         ElevatedButton(
           onPressed: () {
-            if (_formKey.currentState?.validate() ?? false) {
+            if (formKey.currentState?.validate() ?? false) {
               final updatedUom = {
                 'name': nameController.text,
               };

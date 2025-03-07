@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:billing_application/data/database_helper.dart';
 
@@ -9,9 +10,26 @@ class CreateInvoiceController extends GetxController {
   var invoiceDate = Rx<DateTime>(DateTime.now());
   var items = <Map<String, dynamic>>[].obs;
   var invoiceNumber = Rxn<String>();
-  var paidAmount = 0.0.obs;
-  var totalAmount = 0.0.obs; // Change to RxDouble
-  var pendingAmount = 0.0.obs; // Change to RxDouble
+  var paidAmount = Rxn<int>();
+  var totalAmount = 0.0.obs;
+  var pendingAmount = 0.0.obs;
+  final TextEditingController paidAmountController = TextEditingController(text: "0");
+
+
+  @override
+  void onInit() {
+    super.onInit();
+    ever(paidAmount, (int? value) {
+      if (paidAmountController.text != (value?.toString() ?? "0")) {
+        paidAmountController.text = (value?.toString() ?? "0");
+        paidAmountController.selection = TextSelection.fromPosition(
+          TextPosition(offset: paidAmountController.text.length),
+        );
+      }
+    });
+
+  }
+
 
   /// Adds a new invoice item.
   void addItem(Map<String, dynamic> item) {
@@ -22,13 +40,13 @@ class CreateInvoiceController extends GetxController {
   /// Updates the total and pending amounts.
   void updateTotal() {
     totalAmount.value = items.fold(0.0, (sum, item) => sum + (item['total'] ?? 0.0));
-    pendingAmount.value = totalAmount.value - paidAmount.value;
+    pendingAmount.value = totalAmount.value - (paidAmount.value ?? 0);
   }
 
   /// Updates pending amount when paid amount changes.
-  void updatePaidAmount(double amount) {
+  void updatePaidAmount(int amount) {
     paidAmount.value = amount;
-    pendingAmount.value = totalAmount.value - paidAmount.value;
+    pendingAmount.value = totalAmount.value - (paidAmount.value ?? 0);
   }
 
   /// Saves the invoice and returns a copy of the saved invoice data,
@@ -44,7 +62,7 @@ class CreateInvoiceController extends GetxController {
 
     // Insert the sale and its items.
     int saleId =
-        await DatabaseHelper.instance.insertSaleWithItems(saleData, items, paidAmount.value);
+        await DatabaseHelper.instance.insertSaleWithItems(saleData, items, (paidAmount.value ?? 0));
     String newInvoiceNumber = "$saleId/$financialYear";
     invoiceNumber.value = newInvoiceNumber;
 
@@ -65,7 +83,9 @@ class CreateInvoiceController extends GetxController {
     invoiceDate.value = DateTime.now();
     items.clear();
     invoiceNumber.value = null;
-
+    paidAmount.value = 0;
+    totalAmount.value = 0.0;
+    pendingAmount.value = 0.0;
     return savedData;
   }
 }
