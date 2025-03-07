@@ -2,8 +2,10 @@ import 'package:billing_application/controller/uom_controller.dart';
 import 'package:billing_application/utils/data_helpers.dart';
 import 'package:billing_application/utils/print_invoice.dart';
 import 'package:billing_application/widget/create_product_dialog.dart';
+import 'package:billing_application/widget/info_text.dart';
 import 'package:billing_application/widget/input_decoration.dart';
 import 'package:billing_application/widget/main_scaffold.dart';
+import 'package:billing_application/widget/table_column.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -40,9 +42,41 @@ class CreateInvoiceScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header: Invoice Details
-              Text(
-                "Invoice Details",
-                style: Theme.of(context).textTheme.headlineMedium,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Invoice Details",
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  // Invoice Date Picker
+                  Obx(() {
+                    return Row(
+                      children: [
+                        const Text("Invoice Date: "),
+                        Text(
+                          "${invoiceController.invoiceDate.value.toLocal()}"
+                              .split(' ')[0],
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.calendar_today),
+                          onPressed: () async {
+                            DateTime? picked = await showDatePicker(
+                              context: context,
+                              initialDate: invoiceController.invoiceDate.value,
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2100),
+                            );
+                            if (picked != null) {
+                              invoiceController.invoiceDate.value = picked;
+                            }
+                          },
+                        ),
+                      ],
+                    );
+                  }),
+                ],
               ),
               const SizedBox(height: 16),
               // Customer Selection Row
@@ -106,62 +140,50 @@ class CreateInvoiceScreen extends StatelessWidget {
               const SizedBox(height: 16),
               // Show all details of the selected customer
               Obx(() {
-                final customer =
-                    invoiceController.selectedCustomerDetails.value;
+                final customer = invoiceController.selectedCustomerDetails.value;
                 if (customer == null) return const SizedBox();
-                return Card(
-                  elevation: 2,
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
                   margin: const EdgeInsets.symmetric(vertical: 8),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Name: ${customer['name'] ?? ''}"),
-                        Text("Phone: ${customer['phone'] ?? ''}"),
-                        Text("Locality: ${customer['locality'] ?? ''}"),
-                        Text("City: ${customer['city'] ?? ''}"),
-                        Text("State: ${customer['state'] ?? ''}"),
-                        Text("Pin: ${customer['pin'] ?? ''}"),
-                        Text("Email: ${customer['email'] ?? ''}"),
-                      ],
-                    ),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        customer['name'] ?? '',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.indigo[900],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 32,
+                        runSpacing: 8,
+                        children: [
+                          buildInfoText("Phone", customer['phone']),
+                          buildInfoText("Email", customer['email']),
+                          buildInfoText("Locality", customer['locality']),
+                          buildInfoText("City", customer['city']),
+                          buildInfoText("State", customer['state']),
+                          buildInfoText("Pin", customer['pin']),
+                        ],
+                      ),
+                    ],
                   ),
                 );
               }),
-              const SizedBox(height: 16),
-              // Invoice Date Picker
-              Obx(() {
-                return Row(
-                  children: [
-                    const Text("Invoice Date: "),
-                    Text(
-                      "${invoiceController.invoiceDate.value.toLocal()}"
-                          .split(' ')[0],
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.calendar_today),
-                      onPressed: () async {
-                        DateTime? picked = await showDatePicker(
-                          context: context,
-                          initialDate: invoiceController.invoiceDate.value,
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2100),
-                        );
-                        if (picked != null) {
-                          invoiceController.invoiceDate.value = picked;
-                        }
-                      },
-                    ),
-                  ],
-                );
-              }),
+
               const SizedBox(height: 24),
               // Section: Add Invoice Item
               const Text(
                 "Add Invoice Item",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               // Inside your "Add Invoice Item" Container in CreateInvoiceScreen
@@ -320,35 +342,90 @@ class CreateInvoiceScreen extends StatelessWidget {
               // List of Invoice Items
               const Text(
                 "Invoice Items:",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
+
               Obx(() {
                 if (invoiceController.items.isEmpty) {
-                  return const Text("No items added.");
-                }
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: invoiceController.items.length,
-                  itemBuilder: (context, index) {
-                    final item = invoiceController.items[index];
-                    return Card(
-                      child: ListTile(
-                        title: Text(item['product_name'] ?? 'Unknown Product'),
-                        subtitle: Text(
-                            "Qty: ${item['quantity']} - Rate: ${item['rate']} - Total: ${item['total']}"),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            invoiceController.items.removeAt(index);
-                          },
-                        ),
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(
+                      child: Text(
+                        "No items added.",
+                        style: TextStyle(fontSize: 18, color: Colors.grey),
                       ),
-                    );
-                  },
+                    ),
+                  );
+                }
+
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                          child: DataTable(
+                            columnSpacing: 24,
+                            horizontalMargin: 12,
+                            headingRowHeight: 48,
+                            headingRowColor: WidgetStateProperty.all(Colors.grey.shade100),
+                            dividerThickness: 0.5,
+                            columns: [
+                              buildTableColumn('S.No'),
+                              buildTableColumn('Product'),
+                              buildTableColumn('Quantity'),
+                              buildTableColumn('Rate'),
+                              buildTableColumn('Total'),
+                              DataColumn( label: SizedBox(width: 48)),
+                            ],
+                            rows: List<DataRow>.generate(
+                              invoiceController.items.length,
+                                  (index) {
+                                final item = invoiceController.items[index];
+                                return DataRow(
+                                  color: WidgetStateProperty.resolveWith<Color?>(
+                                        (Set<WidgetState> states) {
+                                      if (index.isEven) {
+                                        return Colors.grey.shade50;
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  cells: [
+                                    DataCell(Text('${index + 1}')),
+                                    DataCell(Text(item['product_name'] ?? '-')),
+                                    DataCell(Text('${item['quantity']}')),
+                                    DataCell(Text('${item['rate']}')),
+                                    DataCell(Text('${item['total']}')),
+                                    DataCell(
+                                      IconButton(
+                                        icon: const Icon(Icons.delete, color: Colors.red),
+                                        onPressed: () {
+                                          invoiceController.items.removeAt(index);
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 );
               }),
+
+
               const SizedBox(height: 24),
               // Total Amount display
               Row(
@@ -460,3 +537,6 @@ class CreateInvoiceScreen extends StatelessWidget {
     );
   }
 }
+
+
+
