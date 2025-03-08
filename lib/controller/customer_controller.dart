@@ -26,9 +26,10 @@ class CustomerController extends GetxController {
   }
 
   /// Adds a new customer and refreshes the list.
-  Future<void> addCustomer(Map<String, dynamic> customer) async {
-    await customerRepo.insertCustomer(customer);
-    loadCustomers();
+  Future<Map<String, dynamic>> addCustomer(Map<String, dynamic> customer) async {
+    final newCustomer = await customerRepo.insertCustomer(customer);
+    loadCustomers(); // Refresh customer list
+    return newCustomer; // Return the inserted customer
   }
 
   /// Updates an existing customer.

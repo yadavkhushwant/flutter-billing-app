@@ -1,58 +1,76 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+// Define button types
+enum ButtonType { primary, secondary }
+
 class Button extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
-  final bool? isLoading;
+  final bool isLoading;
   final IconData? leadingIcon;
+  final ButtonType type;
 
-  Button({
+  const Button({
     super.key,
     required this.text,
     required this.onPressed,
-    this.isLoading,
+    this.isLoading = false,
     this.leadingIcon,
+    this.type = ButtonType.primary, // Default to primary
   });
-
-  final colorScheme = Theme.of(Get.context!).colorScheme;
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(Get.context!).colorScheme;
+
+    // Define styles based on button type
+    final isPrimary = type == ButtonType.primary;
+    final backgroundColor = isPrimary ? colorScheme.primary : Colors.transparent;
+    final disabledBackgroundColor = isPrimary ? colorScheme.primary.withAlpha(180) : Colors.transparent;
+    final borderColor = isPrimary ? Colors.transparent : colorScheme.primary;
+    final foregroundColor = isPrimary ? Colors.white : colorScheme.primary;
+
     return ElevatedButton(
-      onPressed: isLoading == true ? null : onPressed,
+      onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: colorScheme.inversePrimary,
-        disabledBackgroundColor: colorScheme.primary.withAlpha(180),
+        backgroundColor: backgroundColor,
+        disabledBackgroundColor: disabledBackgroundColor,
         splashFactory: InkSplash.splashFactory,
         enableFeedback: true,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.zero, // Matches input fields
+          side: BorderSide(color: borderColor, width: 1.5), // Adds border for secondary button
         ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        elevation: isPrimary ? 2 : 0, // Remove elevation for secondary button
+        minimumSize: const Size(24, 48),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (leadingIcon != null && isLoading != true)
+          if (leadingIcon != null && !isLoading) ...[
             Icon(
               leadingIcon,
-              color: colorScheme.primary,
+              color: foregroundColor,
             ),
-          if (isLoading == true)
+            const SizedBox(width: 8),
+          ],
+          if (isLoading)
             const SizedBox(
               width: 16,
               height: 16,
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
             ),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: colorScheme.primary,
+          if (!isLoading)
+            Text(
+              text,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: foregroundColor,
+              ),
             ),
-          ),
         ],
       ),
     );

@@ -70,7 +70,7 @@ class CreateCustomerDialog extends StatelessWidget {
           child: const Text("Cancel"),
         ),
         ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
             if (_formKey.currentState?.validate() ?? false) {
               final newCustomer = {
                 'name': nameController.text,
@@ -82,7 +82,7 @@ class CreateCustomerDialog extends StatelessWidget {
                 'email': emailController.text,
               };
 
-              customerController.addCustomer(newCustomer);
+              var customer = await customerController.addCustomer(newCustomer);
 
               // Clear the fields for next time.
               nameController.clear();
@@ -93,7 +93,7 @@ class CreateCustomerDialog extends StatelessWidget {
               phoneController.clear();
               emailController.clear();
 
-              Get.back();
+              Get.back(result: customer);
             }
           },
           child: const Text("Add"),

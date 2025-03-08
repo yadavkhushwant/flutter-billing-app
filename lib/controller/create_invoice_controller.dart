@@ -1,8 +1,11 @@
+import 'package:billing_application/controller/customer_controller.dart';
+import 'package:billing_application/widget/create_customer_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:billing_application/data/database_helper.dart';
 
 import '../utils/date_time_helpers.dart';
+import '../utils/print_invoice.dart';
 
 class CreateInvoiceController extends GetxController {
   var selectedCustomer = Rxn<int>();
@@ -13,8 +16,13 @@ class CreateInvoiceController extends GetxController {
   var paidAmount = Rxn<int>();
   var totalAmount = 0.0.obs;
   var pendingAmount = 0.0.obs;
-  final TextEditingController paidAmountController = TextEditingController(text: "0");
 
+  final Rxn<int> selectedProductId = Rxn<int>();
+  final Rxn<String> selectedProductName = Rxn<String>();
+
+  final TextEditingController paidAmountController = TextEditingController(text: "0");
+  final TextEditingController quantityController = TextEditingController();
+  final TextEditingController rateController = TextEditingController();
 
   @override
   void onInit() {
@@ -27,14 +35,43 @@ class CreateInvoiceController extends GetxController {
         );
       }
     });
-
   }
 
-
   /// Adds a new invoice item.
-  void addItem(Map<String, dynamic> item) {
+  void _addItem(Map<String, dynamic> item) {
     items.add(item);
     updateTotal(); // Update totalAmount whenever an item is added
+  }
+
+  void addItem(){
+    double quantity =
+        double.tryParse(quantityController.text) ?? 0.0;
+    double rate =
+        double.tryParse(rateController.text) ?? 0.0;
+    if (selectedProductId.value != null &&
+        quantity > 0 &&
+        rate > 0) {
+      double total = quantity * rate;
+      final newItem = {
+        'product_id': selectedProductId.value,
+        'product_name': selectedProductName.value,
+        'quantity': quantity,
+        'rate': rate,
+        'total': total,
+      };
+      _addItem(newItem);
+      // Clear inline form fields for next entry.
+      selectedProductId.value = null;
+      selectedProductName.value = null;
+      quantityController.clear();
+      rateController.clear();
+    } else {
+      Get.snackbar("Error",
+          "Please fill in all invoice item details correctly.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white);
+    }
   }
 
   /// Updates the total and pending amounts.
@@ -49,9 +86,21 @@ class CreateInvoiceController extends GetxController {
     pendingAmount.value = totalAmount.value - (paidAmount.value ?? 0);
   }
 
+  void createNewCustomer(CustomerController customerController) async {
+    final newCustomer =
+        await Get.dialog<Map<String, dynamic>>(
+        const CreateCustomerDialog());
+    if (newCustomer != null) {
+      // Refresh the customer list. (Do not await if loadCustomers returns void.)
+      await customerController.loadCustomers();
+      selectedCustomer.value = newCustomer['id'] as int;
+      selectedCustomerDetails.value = newCustomer;
+    }
+  }
+
   /// Saves the invoice and returns a copy of the saved invoice data,
   /// including the generated invoice number.
-  Future<Map<String, dynamic>> saveInvoice() async {
+  Future<Map<String, dynamic>> _saveInvoice() async {
     String financialYear = getFinancialYear(invoiceDate.value);
     final saleData = {
       'financial_year': financialYear,
@@ -61,8 +110,8 @@ class CreateInvoiceController extends GetxController {
     };
 
     // Insert the sale and its items.
-    int saleId =
-        await DatabaseHelper.instance.insertSaleWithItems(saleData, items, (paidAmount.value ?? 0));
+    int saleId = await DatabaseHelper.instance
+        .insertSaleWithItems(saleData, items, (paidAmount.value ?? 0));
     String newInvoiceNumber = "$saleId/$financialYear";
     invoiceNumber.value = newInvoiceNumber;
 
@@ -87,5 +136,53 @@ class CreateInvoiceController extends GetxController {
     totalAmount.value = 0.0;
     pendingAmount.value = 0.0;
     return savedData;
+  }
+
+  Future<void> saveInvoice() async {
+    if (selectedCustomer.value == null || items.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Please select a customer and add at least one invoice item.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+    await _saveInvoice();
+    Get.snackbar(
+      "Success",
+      "Invoice created successfully!",
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+    );
+  }
+
+  Future<void> saveAndPrintInvoice() async {
+    if (selectedCustomer.value == null || items.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Please select a customer and add at least one invoice item.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    // Save the invoice and capture the returned data.
+    final savedInvoiceData = await _saveInvoice();
+
+    Get.snackbar(
+      "Success",
+      "Invoice created successfully!",
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+    );
+
+    // Now print the invoice using the saved data copy.
+    await generateInvoicePdf(savedInvoiceData);
   }
 }

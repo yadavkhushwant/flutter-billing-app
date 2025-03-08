@@ -77,17 +77,17 @@ class CreateProductDialog extends StatelessWidget {
           child: const Text("Cancel"),
         ),
         ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
             if (_formKey.currentState!.validate()) {
               final newProduct = {
                 'name': nameController.text,
                 'uom_id': selectedUomId.value,
                 'rate': double.tryParse(rateController.text) ?? 0.0,
               };
-              productController.addProduct(newProduct);
+              final savedProduct = await productController.addProduct(newProduct);
               nameController.clear();
               rateController.clear();
-              Get.back();
+              Get.back(result: savedProduct);
             }
           },
           child: const Text("Add"),

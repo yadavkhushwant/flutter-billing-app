@@ -28,9 +28,10 @@ class ProductController extends GetxController {
   }
 
   /// Adds a new product.
-  Future<void> addProduct(Map<String, dynamic> product) async {
-    await productRepo.insertProduct(product);
+  Future<Map<String, dynamic>> addProduct(Map<String, dynamic> product) async {
+    final newProduct = await productRepo.insertProduct(product);
     loadProducts();
+    return newProduct;
   }
 
   /// Updates an existing product.

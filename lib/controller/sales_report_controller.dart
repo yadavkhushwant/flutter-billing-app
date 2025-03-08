@@ -23,10 +23,6 @@ class SalesReportController extends GetxController {
     sales.assignAll(data);
   }
 
-  Future<List<Map<String, dynamic>>> getSalesForCustomer({ required int customerId, int? month, int? year}) async {
-    return salesRepo.getSalesForCustomer(customerId: customerId, month: month, year: year);
-  }
-
   /// Update the selected month and/or year and reload the sales.
   void updateMonthYear({required int month, required int year}) {
     selectedMonth.value = month;

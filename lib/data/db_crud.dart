@@ -4,10 +4,15 @@ import 'package:billing_application/data/database_helper.dart';
 class CustomerRepository {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
-  /// Inserts a new customer.
-  Future<int> insertCustomer(Map<String, dynamic> customer) async {
+  Future<Map<String, dynamic>> insertCustomer(Map<String, dynamic> customer) async {
     final db = await _dbHelper.database;
-    return await db.insert('customer', customer);
+    int id = await db.insert('customer', customer);
+
+    // Fetch the newly inserted customer using its ID
+    final List<Map<String, dynamic>> result =
+    await db.query('customer', where: 'id = ?', whereArgs: [id]);
+
+    return result.isNotEmpty ? result.first : {}; // Return the new customer
   }
 
   /// Retrieves all customers.
@@ -98,9 +103,15 @@ class ProductRepository {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
   /// Inserts a new product.
-  Future<int> insertProduct(Map<String, dynamic> product) async {
+  Future<Map<String, dynamic>> insertProduct(Map<String, dynamic> product) async {
     final db = await _dbHelper.database;
-    return await db.insert('products', product);
+    int id = await db.insert('products', product);
+    // Fetch the newly inserted customer using its ID
+    final List<Map<String, dynamic>> result =
+    await db.query('products', where: 'id = ?', whereArgs: [id]);
+
+    return result.isNotEmpty ? result.first : {}; // Return the new customer
+
   }
 
   /// Retrieves all products.
@@ -148,7 +159,8 @@ class SalesReportRepository {
     return await db.rawQuery('''
       SELECT * FROM sales 
       WHERE strftime('%m', sale_date) = ? 
-      AND strftime('%Y', sale_date) = ?
+      AND strftime('%Y', sale_date) = ? 
+      ORDER BY sale_date DESC
     ''', [monthStr, yearStr]);
   }
 
@@ -177,7 +189,7 @@ class SalesReportRepository {
     }
 
     final String whereString = whereClauses.join(' AND ');
-    return await db.query('sales', where: whereString, whereArgs: whereArgs);
+    return await db.query('sales', where: whereString, whereArgs: whereArgs, orderBy: 'sale_date DESC');
   }
 
 
@@ -311,7 +323,7 @@ class PaymentRepository {
     }
     String whereString = whereClauses.join(" AND ");
     return await db.query('customer_payments',
-        where: whereString, whereArgs: whereArgs);
+        where: whereString, whereArgs: whereArgs, orderBy: 'payment_date DESC');
   }
 
   Future<int> updatePayment(int id, Map<String, dynamic> payment) async {
