@@ -165,56 +165,59 @@ class SalesReportScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Row for month and year dropdowns.
-            Row(
-              children: [
-                // Month Dropdown with InputDecoration
-                Expanded(
-                  child: Obx(() {
-                    return DropdownButtonFormField<int>(
-                      value: salesReportController.selectedMonth.value,
-                      decoration: getInputDecoration("Month"),
-                      items: monthNames.entries.map((entry) {
-                        return DropdownMenuItem(
-                          value: entry.key,
-                          child: Text(entry.value), // Show month name instead of number
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        if (value != null) {
-                          salesReportController.updateMonthYear(
-                            month: value,
-                            year: salesReportController.selectedYear.value,
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: 300,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Obx(() {
+                      return DropdownButtonFormField<int>(
+                        value: salesReportController.selectedMonth.value,
+                        decoration: getInputDecoration("Month"),
+                        items: monthNames.entries.map((entry) {
+                          return DropdownMenuItem(
+                            value: entry.key,
+                            child: Text(entry.value), // Show month name instead of number
                           );
-                        }
-                      },
-                    );
-                  }),
-                ),
-                const SizedBox(width: 16),
-                // Year Dropdown with InputDecoration
-                Expanded(
-                  child: Obx(() {
-                    return DropdownButtonFormField<int>(
-                      value: salesReportController.selectedYear.value,
-                      decoration: getInputDecoration("Year"),
-                      items: yearList.map((year) {
-                        return DropdownMenuItem(
-                          value: year,
-                          child: Text(year.toString()), // Show year as text
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        if (value != null) {
-                          salesReportController.updateMonthYear(
-                            month: salesReportController.selectedMonth.value,
-                            year: value,
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            salesReportController.updateMonthYear(
+                              month: value,
+                              year: salesReportController.selectedYear.value,
+                            );
+                          }
+                        },
+                      );
+                    }),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Obx(() {
+                      return DropdownButtonFormField<int>(
+                        value: salesReportController.selectedYear.value,
+                        decoration: getInputDecoration("Year"),
+                        items: yearList.map((year) {
+                          return DropdownMenuItem(
+                            value: year,
+                            child: Text(year.toString()), // Show year as text
                           );
-                        }
-                      },
-                    );
-                  }),
-                ),
-              ],
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            salesReportController.updateMonthYear(
+                              month: salesReportController.selectedMonth.value,
+                              year: value,
+                            );
+                          }
+                        },
+                      );
+                    }),
+                  ),
+                ],
+              ),
             ),
 
             const SizedBox(height: 16),

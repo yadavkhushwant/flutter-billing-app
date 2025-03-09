@@ -1,4 +1,6 @@
 import 'package:billing_application/controller/customer_details_controller.dart';
+import 'package:billing_application/utils/date_time_helpers.dart';
+import 'package:billing_application/widget/input_decoration.dart';
 import 'package:billing_application/widget/main_scaffold.dart';
 import 'package:billing_application/widget/pluto_columns.dart';
 import 'package:flutter/material.dart';
@@ -46,11 +48,6 @@ class CustomerDetailsScreen extends StatelessWidget {
     // Load the sales and payments data.
     controller.loadSalesData();
     controller.loadPaymentsData();
-
-    // Create lists for month and year dropdowns.
-    final List<int> months = List.generate(12, (index) => index + 1);
-    final List<int> years =
-        List.generate(10, (index) => DateTime.now().year - 5 + index);
 
     // Define Sales table columns.
     final List<PlutoColumn> salesColumns = [
@@ -117,124 +114,134 @@ class CustomerDetailsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Filter Row: Year dropdown and (conditionally) Month dropdown.
-            Row(
-              children: [
-                // Year Dropdown with "All" option.
-                Obx(() {
-                  return DropdownButton<int?>(
-                    value: controller.selectedYear.value,
-                    hint: const Text("Select Year"),
-                    items: [
-                      const DropdownMenuItem<int?>(
-                        value: null,
-                        child: Text("All"),
-                      ),
-                      ...years.map((year) => DropdownMenuItem<int?>(
-                            value: year,
-                            child: Text(year.toString()),
-                          ))
-                    ],
-                    onChanged: (value) {
-                      // When year changes, update and reload data.
-                      controller.updateMonthYear(
-                        month: value == null
-                            ? null
-                            : controller.selectedMonth.value,
-                        year: value,
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: 300,
+              ),
+              child: Row(
+                children: [
+                  // Year Dropdown with "All" option.
+                  Expanded(
+                    child: Obx(() {
+                      return DropdownButtonFormField<int?>(
+                        value: controller.selectedYear.value,
+                        decoration: getInputDecoration("Year"),
+                        items: [
+                          const DropdownMenuItem<int?>(
+                            value: null,
+                            child: Text("All"),
+                          ),
+                          ...yearList.map((year) {
+                            return DropdownMenuItem(
+                              value: year,
+                              child: Text(year.toString()), // Show year as text
+                            );
+                          })
+                        ],
+                        onChanged: (value) {
+                          // When year changes, update and reload data.
+                          controller.updateMonthYear(
+                            month: value == null
+                                ? null
+                                : controller.selectedMonth.value,
+                            year: value,
+                          );
+                        },
                       );
-                    },
-                  );
-                }),
-                const SizedBox(width: 16),
-                // Only show Month dropdown if a specific year is selected.
-                Obx(() {
-                  if (controller.selectedYear.value == null) return Container();
-                  return DropdownButton<int?>(
-                    value: controller.selectedMonth.value,
-                    hint: const Text("Select Month"),
-                    items: [
-                      const DropdownMenuItem<int?>(
-                        value: null,
-                        child: Text("All"),
-                      ),
-                      ...months.map((month) => DropdownMenuItem<int?>(
-                            value: month,
-                            child: Text("Month $month"),
-                          ))
-                    ],
-                    onChanged: (value) {
-                      controller.updateMonthYear(
-                        month: value,
-                        year: controller.selectedYear.value,
+                    }),
+                  ),
+                  const SizedBox(width: 16),
+                  // Only show Month dropdown if a specific year is selected.
+                  Expanded(
+                    child: Obx(() {
+                      if (controller.selectedYear.value == null) {
+                        return Container();
+                      }
+                      return DropdownButtonFormField<int?>(
+                        value: controller.selectedMonth.value,
+                        decoration: getInputDecoration("Month"),
+                        items: [
+                          const DropdownMenuItem<int?>(
+                            value: null,
+                            child: Text("All"),
+                          ),
+                          ...monthNames.entries.map((entry) {
+                            return DropdownMenuItem(
+                              value: entry.key,
+                              child: Text(entry
+                                  .value), // Show month name instead of number
+                            );
+                          })
+                        ],
+                        onChanged: (value) {
+                          controller.updateMonthYear(
+                            month: value,
+                            year: controller.selectedYear.value,
+                          );
+                        },
                       );
-                    },
-                  );
-                }),
-              ],
+                    }),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 24),
             // Elegant Customer Details Card.
             Card(
-              elevation: 4,
+              color: Colors.white,
+              elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(4),
+                side: BorderSide(color: Colors.indigo[900]!)
               ),
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Customer basic info.
+                    // Customer Info
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           customerData['name'] ?? 'Customer Name',
                           style: const TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
+                              fontSize: 20, fontWeight: FontWeight.w600),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
                         Text(
-                          customerData['phone'] ?? '',
-                          style:
-                              const TextStyle(fontSize: 16, color: Colors.grey),
+                          customerData['phone'] ?? 'N/A',
+                          style: const TextStyle(fontSize: 14, color: Colors.grey),
                         ),
-                        // Additional details can be added here.
                       ],
                     ),
-                    // Sales & Payments Totals.
+
+                    // Sales, Payments & Pending Amount
                     Obx(() {
                       double totalSales = controller.sales.fold(0.0,
-                          (prev, sale) => prev + (sale['total_amount'] ?? 0.0));
+                              (prev, sale) => prev + (sale['total_amount'] ?? 0.0));
                       double totalPayments = controller.payments.fold(0.0,
-                          (prev, payment) => prev + (payment['amount'] ?? 0.0));
+                              (prev, payment) => prev + (payment['amount'] ?? 0.0));
                       double pendingAmount = totalSales - totalPayments;
+
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
+                          // Total Sales
+                          _infoRow("Total Sales", "₹${totalSales.toStringAsFixed(2)}"),
+                          const SizedBox(height: 2),
+
+                          // Total Payments
+                          _infoRow("Total Payments", "₹${totalPayments.toStringAsFixed(2)}"),
+                          const SizedBox(height: 6),
+
+                          // Pending Amount (Highlighted)
                           Text(
-                            "Total Sales: \$${totalSales.toStringAsFixed(2)}",
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            "Total Payments: \$${totalPayments.toStringAsFixed(2)}",
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            "Pending Amount",
+                            "Pending: ₹${pendingAmount.toStringAsFixed(2)}",
                             style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            "\$${pendingAmount.toStringAsFixed(2)}",
-                            style: TextStyle(
-                              fontSize: 28,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color:
-                                  pendingAmount > 0 ? Colors.red : Colors.green,
+                              color: pendingAmount > 0 ? Colors.red : Colors.green,
                             ),
                           ),
                         ],
@@ -244,6 +251,7 @@ class CustomerDetailsScreen extends StatelessWidget {
                 ),
               ),
             ),
+
             const SizedBox(height: 24),
             // Sales Table.
             Text(
@@ -337,4 +345,15 @@ class CustomerDetailsScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _infoRow(String label, String value) {
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Text(label, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+      const SizedBox(width: 6),
+      Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+    ],
+  );
 }

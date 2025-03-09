@@ -1,4 +1,5 @@
 import 'package:billing_application/controller/payment_controller.dart';
+import 'package:billing_application/utils/date_time_helpers.dart';
 import 'package:billing_application/widget/button.dart';
 import 'package:billing_application/widget/create_payment_dialog.dart';
 import 'package:billing_application/widget/edit_payment_dialog.dart';
@@ -157,37 +158,46 @@ class ManagePaymentScreen extends StatelessWidget {
                   // Month Dropdown – show if no customer filter or when not in "show all" mode.
                   if (paymentController.selectedCustomerId.value == null ||
                       !paymentController.showAllForCustomer.value)
-                    DropdownButton<int>(
-                      value: paymentController.selectedMonth.value,
-                      items: List.generate(12, (index) => index + 1)
-                          .map((m) => DropdownMenuItem(
-                        value: m,
-                        child: Text("Month: $m"),
-                      ))
-                          .toList(),
-                      onChanged: (val) {
-                        paymentController.selectedMonth.value = val!;
-                        paymentController.loadPayments();
-                      },
-                    ),
+                  Expanded(
+                    child: Obx(() {
+                      return DropdownButtonFormField<int>(
+                        value: paymentController.selectedMonth.value,
+                        decoration: getInputDecoration("Month"),
+                        items: monthNames.entries.map((entry) {
+                          return DropdownMenuItem(
+                            value: entry.key,
+                            child: Text(entry.value), // Show month name instead of number
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          paymentController.selectedMonth.value = val!;
+                          paymentController.loadPayments();
+                        },
+                      );
+                    }),
+                  ),
                   const SizedBox(width: 16),
                   // Year Dropdown – show if no customer filter or when not in "show all" mode.
                   if (paymentController.selectedCustomerId.value == null ||
                       !paymentController.showAllForCustomer.value)
-                    DropdownButton<int>(
-                      value: paymentController.selectedYear.value,
-                      items: List.generate(
-                          5, (index) => DateTime.now().year - index)
-                          .map((y) => DropdownMenuItem(
-                        value: y,
-                        child: Text("Year: $y"),
-                      ))
-                          .toList(),
-                      onChanged: (val) {
-                        paymentController.selectedYear.value = val!;
-                        paymentController.loadPayments();
-                      },
-                    ),
+                  Expanded(
+                    child: Obx(() {
+                      return DropdownButtonFormField<int>(
+                        value: paymentController.selectedYear.value,
+                        decoration: getInputDecoration("Year"),
+                        items: yearList.map((year) {
+                          return DropdownMenuItem(
+                            value: year,
+                            child: Text(year.toString()), // Show year as text
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          paymentController.selectedYear.value = val!;
+                          paymentController.loadPayments();
+                        },
+                      );
+                    }),
+                  ),
                   const SizedBox(width: 16),
                   // Checkbox for "Show All" payments when a customer is selected.
                   if (paymentController.selectedCustomerId.value != null)
