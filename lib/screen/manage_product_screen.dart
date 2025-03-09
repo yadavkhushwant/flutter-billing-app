@@ -1,5 +1,6 @@
 import 'package:billing_application/controller/product_controller.dart';
 import 'package:billing_application/controller/uom_controller.dart';
+import 'package:billing_application/widget/button.dart';
 import 'package:billing_application/widget/create_product_dialog.dart';
 import 'package:billing_application/widget/edit_product_dialog.dart';
 import 'package:billing_application/widget/main_scaffold.dart';
@@ -95,16 +96,12 @@ class ManageProductScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                ElevatedButton.icon(
+                Button(
                   onPressed: () {
                     Get.dialog(const CreateProductDialog());
                   },
-                  icon: const Icon(Icons.add),
-                  label: const Text("Add Product"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.indigo[900],
-                    foregroundColor: Colors.white,
-                  ),
+                  leadingIcon: Icons.add,
+                  text: "Add Product",
                 ),
               ],
             ),

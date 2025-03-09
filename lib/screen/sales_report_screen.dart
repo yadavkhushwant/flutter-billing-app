@@ -1,6 +1,8 @@
 import 'package:billing_application/controller/customer_controller.dart';
 import 'package:billing_application/controller/sales_report_controller.dart';
+import 'package:billing_application/utils/date_time_helpers.dart';
 import 'package:billing_application/utils/print_invoice.dart';
+import 'package:billing_application/widget/input_decoration.dart';
 import 'package:billing_application/widget/pluto_columns.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -80,15 +82,11 @@ class SalesReportScreen extends StatelessWidget {
     final salesReportController = Get.put(SalesReportController());
     final customerController = Get.put(CustomerController());
 
-    // Create a list of months (1-12) and a range of years.
-    final List<int> months = List.generate(12, (index) => index + 1);
-    final List<int> years =
-        List.generate(10, (index) => DateTime.now().year - 5 + index);
-
     final List<PlutoColumn> columns = [
       PlutoColumn(
         title: 'Action',
         field: 'action',
+        width: 120,
         type: PlutoColumnType.text(),
         enableEditingMode: false,
         renderer: (PlutoColumnRendererContext context) {
@@ -169,49 +167,56 @@ class SalesReportScreen extends StatelessWidget {
             // Row for month and year dropdowns.
             Row(
               children: [
-                // Month Dropdown.
-                Obx(() {
-                  return DropdownButton<int>(
-                    value: salesReportController.selectedMonth.value,
-                    items: months.map((month) {
-                      return DropdownMenuItem(
-                        value: month,
-                        child: Text("Month $month"),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        salesReportController.updateMonthYear(
-                          month: value,
-                          year: salesReportController.selectedYear.value,
+                // Month Dropdown with InputDecoration
+                Expanded(
+                  child: Obx(() {
+                    return DropdownButtonFormField<int>(
+                      value: salesReportController.selectedMonth.value,
+                      decoration: getInputDecoration("Month"),
+                      items: monthNames.entries.map((entry) {
+                        return DropdownMenuItem(
+                          value: entry.key,
+                          child: Text(entry.value), // Show month name instead of number
                         );
-                      }
-                    },
-                  );
-                }),
+                      }).toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          salesReportController.updateMonthYear(
+                            month: value,
+                            year: salesReportController.selectedYear.value,
+                          );
+                        }
+                      },
+                    );
+                  }),
+                ),
                 const SizedBox(width: 16),
-                // Year Dropdown.
-                Obx(() {
-                  return DropdownButton<int>(
-                    value: salesReportController.selectedYear.value,
-                    items: years.map((year) {
-                      return DropdownMenuItem(
-                        value: year,
-                        child: Text(year.toString()),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        salesReportController.updateMonthYear(
-                          month: salesReportController.selectedMonth.value,
-                          year: value,
+                // Year Dropdown with InputDecoration
+                Expanded(
+                  child: Obx(() {
+                    return DropdownButtonFormField<int>(
+                      value: salesReportController.selectedYear.value,
+                      decoration: getInputDecoration("Year"),
+                      items: yearList.map((year) {
+                        return DropdownMenuItem(
+                          value: year,
+                          child: Text(year.toString()), // Show year as text
                         );
-                      }
-                    },
-                  );
-                }),
+                      }).toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          salesReportController.updateMonthYear(
+                            month: salesReportController.selectedMonth.value,
+                            year: value,
+                          );
+                        }
+                      },
+                    );
+                  }),
+                ),
               ],
             ),
+
             const SizedBox(height: 16),
             // PlutoGrid to display sales data.
             Expanded(

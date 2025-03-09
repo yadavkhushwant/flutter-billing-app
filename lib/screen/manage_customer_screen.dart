@@ -1,4 +1,5 @@
 import 'package:billing_application/controller/customer_controller.dart';
+import 'package:billing_application/widget/button.dart';
 import 'package:billing_application/widget/create_customer_dialog.dart';
 import 'package:billing_application/widget/edit_customer_dialog.dart';
 import 'package:billing_application/widget/main_scaffold.dart';
@@ -50,6 +51,7 @@ class ManageCustomerScreen extends StatelessWidget {
       PlutoColumn(
         title: 'Action',
         field: 'action',
+        width: 90,
         type: PlutoColumnType.text(),
         enableEditingMode: false,
         renderer: (PlutoColumnRendererContext context) {
@@ -129,17 +131,13 @@ class ManageCustomerScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                ElevatedButton.icon(
+                Button(
                   onPressed: () async {
                     await Get.dialog(const CreateCustomerDialog());
                     customerController.loadCustomers();
                   },
-                  icon: const Icon(Icons.add),
-                  label: const Text("Add Customer"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.indigo[900],
-                    foregroundColor: Colors.white,
-                  ),
+                  leadingIcon: Icons.add,
+                  text: "Add Customer",
                 ),
               ],
             ),

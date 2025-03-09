@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:billing_application/widget/button.dart';
+import 'package:billing_application/widget/input_decoration.dart';
 import 'package:billing_application/widget/main_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -28,8 +30,7 @@ class SettingsScreen extends StatelessWidget {
                   // Business Name Field
                   TextFormField(
                     controller: controller.businessNameController,
-                    decoration:
-                        const InputDecoration(labelText: "Business Name"),
+                    decoration: getInputDecoration("Business Name"),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return "Please enter business name";
@@ -41,7 +42,7 @@ class SettingsScreen extends StatelessWidget {
                   // Email Field
                   TextFormField(
                     controller: controller.emailController,
-                    decoration: const InputDecoration(labelText: "Email"),
+                    decoration: getInputDecoration("Email"),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return "Please enter email";
@@ -53,8 +54,7 @@ class SettingsScreen extends StatelessWidget {
                   // Contact Number Field
                   TextFormField(
                     controller: controller.contactController,
-                    decoration:
-                        const InputDecoration(labelText: "Contact Number"),
+                    decoration: getInputDecoration("Contact Number"),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return "Please enter contact number";
@@ -66,7 +66,7 @@ class SettingsScreen extends StatelessWidget {
                   // Address Field
                   TextFormField(
                     controller: controller.addressController,
-                    decoration: const InputDecoration(labelText: "Address"),
+                    decoration: getInputDecoration("Address"),
                   ),
                   const SizedBox(height: 16),
                   // Logo Field: Show current logo (if any) and allow picking a new image.
@@ -76,8 +76,6 @@ class SettingsScreen extends StatelessWidget {
                         return controller.logoPath.value.isNotEmpty
                             ? Image.file(
                                 File(controller.logoPath.value),
-                                width: 100,
-                                height: 100,
                                 fit: BoxFit.cover,
                               )
                             : Container(
@@ -88,22 +86,23 @@ class SettingsScreen extends StatelessWidget {
                               );
                       }),
                       const SizedBox(width: 16),
-                      ElevatedButton(
+                      Button(
+                        type: ButtonType.secondary,
                         onPressed: () => controller.pickLogo(),
-                        child: const Text("Select Logo"),
+                        text: "Select Logo",
                       ),
                     ],
                   ),
                   const SizedBox(height: 32),
                   // Save Button
                   Center(
-                    child: ElevatedButton(
+                    child: Button(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           controller.saveSettings();
                         }
                       },
-                      child: const Text("Save Settings"),
+                      text: "Save Settings",
                     ),
                   )
                 ],

@@ -1,4 +1,5 @@
 import 'package:billing_application/controller/payment_controller.dart';
+import 'package:billing_application/widget/button.dart';
 import 'package:billing_application/widget/create_payment_dialog.dart';
 import 'package:billing_application/widget/edit_payment_dialog.dart';
 import 'package:billing_application/widget/input_decoration.dart';
@@ -205,17 +206,13 @@ class ManagePaymentScreen extends StatelessWidget {
                     ),
                   const Spacer(),
                   // "Add Payment" Button.
-                  ElevatedButton.icon(
+                  Button(
                     onPressed: () async {
                       await Get.dialog(const CreatePaymentDialog());
                       paymentController.loadPayments();
                     },
-                    icon: const Icon(Icons.add),
-                    label: const Text("Add Payment"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.indigo[900],
-                      foregroundColor: Colors.white,
-                    ),
+                    leadingIcon: Icons.add,
+                    text: "Add Payment",
                   ),
                 ],
               );
