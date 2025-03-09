@@ -1,3 +1,4 @@
+import 'package:billing_application/widget/button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:billing_application/controller/product_controller.dart';
@@ -19,64 +20,70 @@ class CreateProductDialog extends StatelessWidget {
 
     return AlertDialog(
       title: const Text("Add Product"),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Product Name
-              TextFormField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: "Product Name"),
-                validator: (value) => (value == null || value.isEmpty)
-                    ? "Please enter product name"
-                    : null,
-              ),
-              const SizedBox(height: 12),
-              // Dropdown for UOM selection.
-              Obx(() {
-                if (uomController.uoms.isEmpty) {
-                  return const Text("No UOM available");
-                }
-                return DropdownButtonFormField<int>(
-                  decoration: const InputDecoration(labelText: "Select UOM"),
-                  value: selectedUomId.value,
-                  items: uomController.uoms.map<DropdownMenuItem<int>>((uom) {
-                    return DropdownMenuItem<int>(
-                      value: uom['id'] as int,
-                      child: Text(uom['name'] ?? ''),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    selectedUomId.value = value;
-                  },
-                  validator: (value) =>
-                  value == null ? "Please select a UOM" : null,
-                );
-              }),
-              const SizedBox(height: 12),
-              // Rate field
-              TextFormField(
-                controller: rateController,
-                decoration: const InputDecoration(labelText: "Rate"),
-                keyboardType: TextInputType.number,
-                validator: (value) => (value == null || value.isEmpty)
-                    ? "Please enter rate"
-                    : null,
-              ),
-            ],
+      content: ConstrainedBox(
+        constraints: BoxConstraints(
+            minWidth: 560
+        ),
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Product Name
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: "Product Name"),
+                  validator: (value) => (value == null || value.isEmpty)
+                      ? "Please enter product name"
+                      : null,
+                ),
+                const SizedBox(height: 12),
+                // Dropdown for UOM selection.
+                Obx(() {
+                  if (uomController.uoms.isEmpty) {
+                    return const Text("No UOM available");
+                  }
+                  return DropdownButtonFormField<int>(
+                    decoration: const InputDecoration(labelText: "Select UOM"),
+                    value: selectedUomId.value,
+                    items: uomController.uoms.map<DropdownMenuItem<int>>((uom) {
+                      return DropdownMenuItem<int>(
+                        value: uom['id'] as int,
+                        child: Text(uom['name'] ?? ''),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      selectedUomId.value = value;
+                    },
+                    validator: (value) =>
+                    value == null ? "Please select a UOM" : null,
+                  );
+                }),
+                const SizedBox(height: 12),
+                // Rate field
+                TextFormField(
+                  controller: rateController,
+                  decoration: const InputDecoration(labelText: "Rate"),
+                  keyboardType: TextInputType.number,
+                  validator: (value) => (value == null || value.isEmpty)
+                      ? "Please enter rate"
+                      : null,
+                ),
+              ],
+            ),
           ),
         ),
       ),
       actions: [
-        TextButton(
+        Button(
+          type: ButtonType.secondary,
           onPressed: () {
             Get.back(); // Close the dialog.
           },
-          child: const Text("Cancel"),
+          text: "Cancel",
         ),
-        ElevatedButton(
+        Button(
           onPressed: () async {
             if (_formKey.currentState!.validate()) {
               final newProduct = {
@@ -90,7 +97,7 @@ class CreateProductDialog extends StatelessWidget {
               Get.back(result: savedProduct);
             }
           },
-          child: const Text("Add"),
+          text: "Save",
         ),
       ],
     );

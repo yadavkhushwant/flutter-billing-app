@@ -33,6 +33,7 @@ class SalesReportController extends GetxController {
   Future<void> deleteSale(int id) async {
     await salesRepo.deleteSale(id);
     await loadSales();
+    sales.refresh();
   }
 
   Future<List<Map<String, dynamic>>> getSalesItems(dynamic saleId){

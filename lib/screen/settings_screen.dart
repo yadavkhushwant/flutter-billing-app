@@ -14,6 +14,7 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    controller.inflateValuesInInput();
     return MainScaffold(
       child: Obx(() {
         if (controller.isLoading.value) {

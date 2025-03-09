@@ -19,13 +19,32 @@ class SettingsController extends GetxController {
   // Logo file path.
   var logoPath = ''.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    loadSettings();
+  var settingsData = {
+    'businessName': '',
+    'email': '',
+    'contact': '',
+    'address': '',
+  }.obs;
+
+  Future<void> fetchSettings() async {
+    try {
+      isLoading(true);
+      var data = await _settingsRepo.getSettings();
+      if (data != null) {
+        logoPath.value = data['logo'] ?? '';
+        settingsData['businessName'] = data['business_name'] ?? 'Invoicely';
+        settingsData['email'] = data['email'] ?? '';
+        settingsData['contact'] = data['contact_number'] ?? '';
+        settingsData['address'] = data['address'] ?? '';
+
+        settingsData.refresh();
+      }
+    } finally {
+      isLoading(false);
+    }
   }
 
-  Future<void> loadSettings() async {
+  Future<void> inflateValuesInInput() async {
     try {
       isLoading(true);
       var data = await _settingsRepo.getSettings();
@@ -52,6 +71,7 @@ class SettingsController extends GetxController {
     await _settingsRepo.saveSettings(newSettings);
     Get.snackbar("Success", "Settings updated",
         snackPosition: SnackPosition.BOTTOM);
+    fetchSettings();
   }
 
   /// Picks an image from the gallery, copies it to the application's directory

@@ -231,26 +231,23 @@ class SalesReportScreen extends StatelessWidget {
                 if (salesReportController.sales.isEmpty) {
                   return const Center(child: Text("No sales found"));
                 }
-                final rows =
-                    _buildRows(salesReportController, customerController);
                 return PlutoGrid(
+                  key: ValueKey(salesReportController.sales.hashCode),
                   columns: columns,
-                  rows: rows,
+                  rows: _buildRows(salesReportController, customerController),
                   onLoaded: (PlutoGridOnLoadedEvent event) {
-                    salesReportController.gridStateManager.value =
-                        event.stateManager;
+                    salesReportController.gridStateManager.value = event.stateManager;
                     salesReportController.gridStateManager.value!
-                        .setShowColumnFilter(true);
-                    salesReportController.gridStateManager.value!
-                        .setPageSize(10, notify: false);
-                    salesReportController.gridStateManager.value!
-                        .setPage(1, notify: false);
+                      ..setShowColumnFilter(true)
+                      ..setPageSize(10, notify: false)
+                      ..setPage(1, notify: false);
                   },
                   configuration: const PlutoGridConfiguration(),
                   createFooter: (PlutoGridStateManager stateManager) {
                     return PlutoPagination(stateManager);
                   },
                 );
+
               }),
             ),
           ],

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:billing_application/controller/settings_controller.dart';
 import 'package:billing_application/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -60,6 +63,9 @@ class SideNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final SettingsController settingsController = Get.put(SettingsController());
+    settingsController.fetchSettings();
     return Container(
       // Background for the navigation items section.
       color: Colors.indigo[50],
@@ -68,24 +74,32 @@ class SideNavigation extends StatelessWidget {
           // DrawerHeader with matching color as the AppBar.
           DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.indigo[900],
+              color: theme.primaryColor,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.white,
-                  child: Icon(Icons.person, size: 30, color: Colors.indigo),
-                ),
+              children: [
+                Obx(() {
+                  return settingsController.logoPath.value.isNotEmpty
+                      ? Image.file(
+                    File(settingsController.logoPath.value),
+                    fit: BoxFit.cover,
+                  )
+                      : CircleAvatar(
+                    child: const Icon(Icons.person_2, size: 24),
+                  );
+                }),
                 SizedBox(height: 10),
-                Text(
-                  "Billing App",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Obx(() {
+                    return Text(
+                      settingsController.settingsData['businessName'] ?? 'Invoicely',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  }
                 ),
               ],
             ),

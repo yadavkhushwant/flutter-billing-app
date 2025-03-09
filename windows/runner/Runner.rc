@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.codemantri" "\0"
-            VALUE "FileDescription", "billing_application" "\0"
+            VALUE "FileDescription", "Invoicely" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "billing_application" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2025 com.codemantri. All rights reserved." "\0"
             VALUE "OriginalFilename", "billing_application.exe" "\0"
-            VALUE "ProductName", "billing_application" "\0"
+            VALUE "ProductName", "Invoicely" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -1,3 +1,4 @@
+import 'package:billing_application/widget/button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:billing_application/controller/uom_controller.dart';
@@ -14,30 +15,36 @@ class CreateUomDialog extends StatelessWidget {
 
     return AlertDialog(
       title: const Text("Add UOM"),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: "Name"),
-                validator: (value) =>
-                (value == null || value.isEmpty) ? "Please enter a name" : null,
-              ),
-            ],
+      content: ConstrainedBox(
+        constraints: BoxConstraints(
+            minWidth: 560
+        ),
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: "Name"),
+                  validator: (value) =>
+                  (value == null || value.isEmpty) ? "Please enter a name" : null,
+                ),
+              ],
+            ),
           ),
         ),
       ),
       actions: [
-        TextButton(
+        Button(
+          type: ButtonType.secondary,
           onPressed: () {
             Get.back(); // Close the dialog.
           },
-          child: const Text("Cancel"),
+          text: "Cancel",
         ),
-        ElevatedButton(
+        Button(
           onPressed: () {
             if (_formKey.currentState?.validate() ?? false) {
               final newUom = {
@@ -48,7 +55,7 @@ class CreateUomDialog extends StatelessWidget {
               Get.back();
             }
           },
-          child: const Text("Add"),
+          text: "Save",
         )
       ],
     );

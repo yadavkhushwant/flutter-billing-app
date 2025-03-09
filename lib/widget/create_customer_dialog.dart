@@ -1,4 +1,5 @@
 import 'package:billing_application/utils/form_validator.dart';
+import 'package:billing_application/widget/button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:billing_application/controller/customer_controller.dart';
@@ -21,55 +22,61 @@ class CreateCustomerDialog extends StatelessWidget {
 
     return AlertDialog(
       title: const Text("Add Customer"),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: "Name"),
-                  validator: (value) =>validateEmpty(value, "Name")
-              ),
-              TextFormField(
-                controller: localityController,
-                decoration: const InputDecoration(labelText: "Locality"),
-                validator: (value) =>validateEmpty(value, "Locality")
-              ),
-              TextFormField(
-                controller: cityController,
-                decoration: const InputDecoration(labelText: "City"),
-              ),
-              TextFormField(
-                controller: stateController,
-                decoration: const InputDecoration(labelText: "State"),
-              ),
-              TextFormField(
-                controller: pinController,
-                decoration: const InputDecoration(labelText: "Pin"),
-              ),
-              TextFormField(
-                controller: phoneController,
-                decoration: const InputDecoration(labelText: "Phone"),
-                validator: (value) =>validateEmpty(value, "Phone")
-              ),
-              TextFormField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: "Email"),
-              ),
-            ],
+      content: ConstrainedBox(
+        constraints: BoxConstraints(
+            minWidth: 560
+        ),
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: "Name"),
+                    validator: (value) =>validateEmpty(value, "Name")
+                ),
+                TextFormField(
+                  controller: localityController,
+                  decoration: const InputDecoration(labelText: "Locality"),
+                  validator: (value) =>validateEmpty(value, "Locality")
+                ),
+                TextFormField(
+                  controller: cityController,
+                  decoration: const InputDecoration(labelText: "City"),
+                ),
+                TextFormField(
+                  controller: stateController,
+                  decoration: const InputDecoration(labelText: "State"),
+                ),
+                TextFormField(
+                  controller: pinController,
+                  decoration: const InputDecoration(labelText: "Pin"),
+                ),
+                TextFormField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(labelText: "Phone"),
+                  validator: (value) =>validateEmpty(value, "Phone")
+                ),
+                TextFormField(
+                  controller: emailController,
+                  decoration: const InputDecoration(labelText: "Email"),
+                ),
+              ],
+            ),
           ),
         ),
       ),
       actions: [
-        TextButton(
+        Button(
+          type: ButtonType.secondary,
           onPressed: () {
             Get.back(); // Close the dialog.
           },
-          child: const Text("Cancel"),
+          text: "Cancel",
         ),
-        ElevatedButton(
+        Button(
           onPressed: () async {
             if (_formKey.currentState?.validate() ?? false) {
               final newCustomer = {
@@ -96,7 +103,7 @@ class CreateCustomerDialog extends StatelessWidget {
               Get.back(result: customer);
             }
           },
-          child: const Text("Add"),
+          text: "Save",
         )
       ],
     );

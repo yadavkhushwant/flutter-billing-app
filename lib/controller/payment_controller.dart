@@ -12,6 +12,7 @@ class PaymentController extends GetxController {
   var selectedMonth = DateTime.now().month.obs;
   var selectedYear = DateTime.now().year.obs;
   var selectedCustomerId = Rxn<int>(); // null means no customer filter
+  var selectedCustomerDetails = Rxn<Map<String, dynamic>>();
   var showAllForCustomer = false.obs; // if true, show all payments for the selected customer
 
   // For customer dropdown – in a real app you might fetch this from a repository.

@@ -10,40 +10,42 @@ class MainScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final bool desktop = isDesktop(context);
     final NavigationController navController = Get.find<NavigationController>();
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.indigo[900],
-        title: const Text('Billing Software'),
-        // For desktop, display a toggle button that reacts to the observable.
+        backgroundColor: theme.primaryColor,
+        title: Text(
+          'Invoicely',
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: theme.colorScheme.onPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         leading: desktop
             ? Obx(() => IconButton(
-                  icon: Icon(
-                    navController.isSideNavVisible.value
-                        ? Icons.menu_open
-                        : Icons.menu,
-                  ),
-                  onPressed: () {
-                    navController.toggleSideNav();
-                  },
-                ))
+          icon: Icon(
+            navController.isSideNavVisible.value
+                ? Icons.menu_open
+                : Icons.menu,
+            color: theme.colorScheme.onPrimary,
+          ),
+          onPressed: navController.toggleSideNav,
+        ))
             : null,
       ),
-      // For mobile, use a drawer.
       drawer: desktop ? null : const Drawer(child: SideNavigation()),
       body: Row(
         children: [
-          // For desktop, conditionally show the side navigation.
           if (desktop)
             Obx(() => navController.isSideNavVisible.value
                 ? SizedBox(
-                    width: 250,
-                    child: const SideNavigation(),
-                  )
+              width: 250,
+              child: const SideNavigation(),
+            )
                 : const SizedBox.shrink()),
-          // Main content area.
           Expanded(child: child),
         ],
       ),
