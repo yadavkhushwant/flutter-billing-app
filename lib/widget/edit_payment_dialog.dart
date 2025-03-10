@@ -1,3 +1,4 @@
+import 'package:billing_application/widget/button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -22,70 +23,76 @@ class EditPaymentDialog extends StatelessWidget {
 
     return AlertDialog(
       title: const Text("Edit Payment"),
-      content: SingleChildScrollView(
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Payment Date using a Date Picker.
-              TextFormField(
-                controller: paymentDateController,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  labelText: "Payment Date (YYYY-MM-DD)",
-                  suffixIcon: Icon(Icons.calendar_today),
+      content: ConstrainedBox(
+        constraints: BoxConstraints(
+            minWidth: 560
+        ),
+        child: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Payment Date using a Date Picker.
+                TextFormField(
+                  controller: paymentDateController,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    labelText: "Payment Date (YYYY-MM-DD)",
+                    suffixIcon: Icon(Icons.calendar_today),
+                  ),
+                  onTap: () async {
+                    DateTime initialDate;
+                    try {
+                      initialDate = DateFormat('yyyy-MM-dd')
+                          .parse(paymentDateController.text);
+                    } catch (_) {
+                      initialDate = DateTime.now();
+                    }
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: initialDate,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2101),
+                    );
+                    if (pickedDate != null) {
+                      paymentDateController.text =
+                          DateFormat('yyyy-MM-dd').format(pickedDate);
+                    }
+                  },
+                  validator: (value) => (value == null || value.isEmpty)
+                      ? "Please select a payment date"
+                      : null,
                 ),
-                onTap: () async {
-                  DateTime initialDate;
-                  try {
-                    initialDate = DateFormat('yyyy-MM-dd')
-                        .parse(paymentDateController.text);
-                  } catch (_) {
-                    initialDate = DateTime.now();
-                  }
-                  DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: initialDate,
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2101),
-                  );
-                  if (pickedDate != null) {
-                    paymentDateController.text =
-                        DateFormat('yyyy-MM-dd').format(pickedDate);
-                  }
-                },
-                validator: (value) => (value == null || value.isEmpty)
-                    ? "Please select a payment date"
-                    : null,
-              ),
-              TextFormField(
-                controller: amountController,
-                decoration: const InputDecoration(labelText: "Amount"),
-                keyboardType: TextInputType.number,
-                validator: (value) => (value == null || value.isEmpty)
-                    ? "Please enter an amount"
-                    : null,
-              ),
-              TextFormField(
-                controller: paymentReferenceController,
-                decoration:
-                const InputDecoration(labelText: "Payment Reference"),
-              ),
-              TextFormField(
-                controller: notesController,
-                decoration: const InputDecoration(labelText: "Notes"),
-              ),
-            ],
+                TextFormField(
+                  controller: amountController,
+                  decoration: const InputDecoration(labelText: "Amount"),
+                  keyboardType: TextInputType.number,
+                  validator: (value) => (value == null || value.isEmpty)
+                      ? "Please enter an amount"
+                      : null,
+                ),
+                TextFormField(
+                  controller: paymentReferenceController,
+                  decoration:
+                  const InputDecoration(labelText: "Payment Reference"),
+                ),
+                TextFormField(
+                  controller: notesController,
+                  decoration: const InputDecoration(labelText: "Notes"),
+                ),
+              ],
+            ),
           ),
         ),
       ),
       actions: [
-        TextButton(
+        Button(
+          type: ButtonType.secondary,
           onPressed: () => Get.back(),
-          child: const Text("Cancel"),
+          text: "Cancel",
         ),
-        ElevatedButton(
+        Button(
           onPressed: () {
             if (formKey.currentState?.validate() ?? false) {
               final updatedPayment = {
@@ -98,7 +105,7 @@ class EditPaymentDialog extends StatelessWidget {
               Get.back();
             }
           },
-          child: const Text("Save"),
+          text: "Save",
         )
       ],
     );

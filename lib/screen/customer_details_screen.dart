@@ -61,7 +61,7 @@ class CustomerDetailsScreen extends StatelessWidget {
       PlutoColumn(
         title: 'Sale Date',
         field: 'saleDate',
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.date(),
         enableEditingMode: false,
       ),
       PlutoColumn(
@@ -84,7 +84,7 @@ class CustomerDetailsScreen extends StatelessWidget {
       PlutoColumn(
         title: 'Payment Date',
         field: 'paymentDate',
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.date(),
         enableEditingMode: false,
       ),
       PlutoColumn(
@@ -187,68 +187,69 @@ class CustomerDetailsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             // Elegant Customer Details Card.
-            Card(
-              color: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-                side: BorderSide(color: Colors.indigo[900]!)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade300),
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Customer Info
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          customerData['name'] ?? 'Customer Name',
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w600),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Customer Info
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        customerData['name'] ?? 'Customer Name',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.indigo[900],
                         ),
-                        const SizedBox(height: 4),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        customerData['phone'] ?? 'N/A',
+                        style: const TextStyle(fontSize: 14, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+
+                  // Sales, Payments & Pending Amount
+                  Obx(() {
+                    double totalSales = controller.sales.fold(0.0,
+                            (prev, sale) => prev + (sale['total_amount'] ?? 0.0));
+                    double totalPayments = controller.payments.fold(0.0,
+                            (prev, payment) => prev + (payment['amount'] ?? 0.0));
+                    double pendingAmount = totalSales - totalPayments;
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        // Total Sales
+                        _infoRow("Total Sales", "₹${totalSales.toStringAsFixed(2)}"),
+                        const SizedBox(height: 2),
+
+                        // Total Payments
+                        _infoRow("Total Payments", "₹${totalPayments.toStringAsFixed(2)}"),
+                        const SizedBox(height: 6),
+
+                        // Pending Amount (Highlighted)
                         Text(
-                          customerData['phone'] ?? 'N/A',
-                          style: const TextStyle(fontSize: 14, color: Colors.grey),
+                          "Pending: ₹${pendingAmount.toStringAsFixed(2)}",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: pendingAmount > 0 ? Colors.red : Colors.green,
+                          ),
                         ),
                       ],
-                    ),
-
-                    // Sales, Payments & Pending Amount
-                    Obx(() {
-                      double totalSales = controller.sales.fold(0.0,
-                              (prev, sale) => prev + (sale['total_amount'] ?? 0.0));
-                      double totalPayments = controller.payments.fold(0.0,
-                              (prev, payment) => prev + (payment['amount'] ?? 0.0));
-                      double pendingAmount = totalSales - totalPayments;
-
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          // Total Sales
-                          _infoRow("Total Sales", "₹${totalSales.toStringAsFixed(2)}"),
-                          const SizedBox(height: 2),
-
-                          // Total Payments
-                          _infoRow("Total Payments", "₹${totalPayments.toStringAsFixed(2)}"),
-                          const SizedBox(height: 6),
-
-                          // Pending Amount (Highlighted)
-                          Text(
-                            "Pending: ₹${pendingAmount.toStringAsFixed(2)}",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: pendingAmount > 0 ? Colors.red : Colors.green,
-                            ),
-                          ),
-                        ],
-                      );
-                    }),
-                  ],
-                ),
+                    );
+                  }),
+                ],
               ),
             ),
 

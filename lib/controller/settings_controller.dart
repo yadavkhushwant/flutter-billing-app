@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:billing_application/data/db_crud.dart';
+import 'package:billing_application/utils/toasts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -69,16 +70,15 @@ class SettingsController extends GetxController {
       'logo': logoPath.value,
     };
     await _settingsRepo.saveSettings(newSettings);
-    Get.snackbar("Success", "Settings updated",
-        snackPosition: SnackPosition.BOTTOM);
+    successToast("Settings updated");
     fetchSettings();
   }
 
   /// Picks an image from the gallery, copies it to the application's directory
   /// with a fixed file name ("logo.extension"), and updates the logoPath.
   Future<void> pickLogo() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       // Get the application's document directory.
       final Directory appDir = await getApplicationDocumentsDirectory();

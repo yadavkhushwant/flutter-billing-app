@@ -34,12 +34,12 @@ class CreateCustomerDialog extends StatelessWidget {
               children: [
                 TextFormField(
                   controller: nameController,
-                  decoration: const InputDecoration(labelText: "Name"),
+                  decoration: const InputDecoration(labelText: "Name *"),
                     validator: (value) =>validateEmpty(value, "Name")
                 ),
                 TextFormField(
                   controller: localityController,
-                  decoration: const InputDecoration(labelText: "Locality"),
+                  decoration: const InputDecoration(labelText: "Locality *"),
                   validator: (value) =>validateEmpty(value, "Locality")
                 ),
                 TextFormField(
@@ -56,7 +56,7 @@ class CreateCustomerDialog extends StatelessWidget {
                 ),
                 TextFormField(
                   controller: phoneController,
-                  decoration: const InputDecoration(labelText: "Phone"),
+                  decoration: const InputDecoration(labelText: "Phone *"),
                   validator: (value) =>validateEmpty(value, "Phone")
                 ),
                 TextFormField(

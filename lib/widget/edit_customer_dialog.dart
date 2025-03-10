@@ -1,4 +1,6 @@
 import 'package:billing_application/controller/customer_controller.dart';
+import 'package:billing_application/utils/form_validator.dart';
+import 'package:billing_application/widget/button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -29,52 +31,60 @@ class EditCustomerDialog extends StatelessWidget {
 
     return AlertDialog(
       title: const Text("Edit Customer"),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: "Name"),
-                validator: (value) =>
-                (value == null || value.isEmpty) ? "Please enter a name" : null,
-              ),
-              TextFormField(
-                controller: localityController,
-                decoration: const InputDecoration(labelText: "Locality"),
-              ),
-              TextFormField(
-                controller: cityController,
-                decoration: const InputDecoration(labelText: "City"),
-              ),
-              TextFormField(
-                controller: stateController,
-                decoration: const InputDecoration(labelText: "State"),
-              ),
-              TextFormField(
-                controller: pinController,
-                decoration: const InputDecoration(labelText: "Pin"),
-              ),
-              TextFormField(
-                controller: phoneController,
-                decoration: const InputDecoration(labelText: "Phone"),
-              ),
-              TextFormField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: "Email"),
-              ),
-            ],
+      content: ConstrainedBox(
+        constraints: BoxConstraints(
+            minWidth: 560
+        ),
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: "Name *"),
+                  validator: (value) =>
+                  (value == null || value.isEmpty) ? "Please enter a name" : null,
+                ),
+                TextFormField(
+                  controller: localityController,
+                  decoration: const InputDecoration(labelText: "Locality *"),
+                  validator: (value) =>validateEmpty(value, "Locality")
+                ),
+                TextFormField(
+                  controller: cityController,
+                  decoration: const InputDecoration(labelText: "City"),
+                ),
+                TextFormField(
+                  controller: stateController,
+                  decoration: const InputDecoration(labelText: "State"),
+                ),
+                TextFormField(
+                  controller: pinController,
+                  decoration: const InputDecoration(labelText: "Pin"),
+                ),
+                TextFormField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(labelText: "Phone *"),
+                  validator: (value) =>validateEmpty(value, "Phone")
+                ),
+                TextFormField(
+                  controller: emailController,
+                  decoration: const InputDecoration(labelText: "Email"),
+                ),
+              ],
+            ),
           ),
         ),
       ),
       actions: [
-        TextButton(
+        Button(
+          type: ButtonType.secondary,
           onPressed: () => Get.back(),
-          child: const Text("Cancel"),
+          text: "Cancel",
         ),
-        ElevatedButton(
+        Button(
           onPressed: () {
             if (_formKey.currentState?.validate() ?? false) {
               final updatedCustomer = {
@@ -91,7 +101,7 @@ class EditCustomerDialog extends StatelessWidget {
               Get.back();
             }
           },
-          child: const Text("Save"),
+          text: "Save",
         )
       ],
     );

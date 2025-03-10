@@ -27,7 +27,7 @@ class CreateUomDialog extends StatelessWidget {
               children: [
                 TextFormField(
                   controller: nameController,
-                  decoration: const InputDecoration(labelText: "Name"),
+                  decoration: const InputDecoration(labelText: "Name *"),
                   validator: (value) =>
                   (value == null || value.isEmpty) ? "Please enter a name" : null,
                 ),

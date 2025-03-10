@@ -68,7 +68,7 @@ class SalesReportScreen extends StatelessWidget {
 
     final printData = {
       'selectedCustomerDetails': Map<String, dynamic>.from(customer),
-      'invoiceDate': invoiceDate,
+      'invoiceDate': getFormattedDate(invoiceDate),
       'items': List<Map<String, dynamic>>.from(items),
       'totalAmount': totalAmount,
       'invoiceNumber': invoiceNumber,
@@ -125,7 +125,7 @@ class SalesReportScreen extends StatelessWidget {
       PlutoColumn(
         title: 'Sale Date',
         field: 'saleDate',
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.date(),
         enableEditingMode: false,
       ),
       PlutoColumn(

@@ -1,6 +1,4 @@
-import 'package:billing_application/utils/form_validator.dart';
 import 'package:billing_application/widget/button.dart';
-import 'package:billing_application/widget/input_decoration.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

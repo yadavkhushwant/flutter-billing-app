@@ -33,7 +33,7 @@ class CreateProductDialog extends StatelessWidget {
                 // Product Name
                 TextFormField(
                   controller: nameController,
-                  decoration: const InputDecoration(labelText: "Product Name"),
+                  decoration: const InputDecoration(labelText: "Product Name *"),
                   validator: (value) => (value == null || value.isEmpty)
                       ? "Please enter product name"
                       : null,
@@ -45,7 +45,7 @@ class CreateProductDialog extends StatelessWidget {
                     return const Text("No UOM available");
                   }
                   return DropdownButtonFormField<int>(
-                    decoration: const InputDecoration(labelText: "Select UOM"),
+                    decoration: const InputDecoration(labelText: "Select UOM *"),
                     value: selectedUomId.value,
                     items: uomController.uoms.map<DropdownMenuItem<int>>((uom) {
                       return DropdownMenuItem<int>(
@@ -66,9 +66,6 @@ class CreateProductDialog extends StatelessWidget {
                   controller: rateController,
                   decoration: const InputDecoration(labelText: "Rate"),
                   keyboardType: TextInputType.number,
-                  validator: (value) => (value == null || value.isEmpty)
-                      ? "Please enter rate"
-                      : null,
                 ),
               ],
             ),

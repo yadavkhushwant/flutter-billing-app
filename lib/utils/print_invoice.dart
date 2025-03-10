@@ -1,11 +1,31 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:billing_application/data/db_crud.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 Future<void> generateInvoicePdf(Map<String, dynamic> data) async {
+
+  final uomRepo = UOMRepository();
+
+  // Fetch UOM for each product and add it to the items list
+  for (int i = 0; i < data['items'].length; i++) {
+    final Map<String, dynamic> mapItem = Map<String, dynamic>.from(data['items'][i]);
+    final int productId = mapItem['product_id'];
+
+    try {
+      final String uomName = await uomRepo.getUomName(productId);
+      mapItem['uom'] = uomName;
+    } catch (e) {
+      debugPrint('Error fetching UOM for product $productId: $e');
+      mapItem['uom'] = 'N/A';
+    }
+
+    // Update the original list with the modified map
+    data['items'][i] = mapItem;
+  }
+
   // Fetch business settings from the database.
   final settings = await SettingsRepository().getSettings() ?? {};
   final businessName = settings['business_name'] ?? 'Codemantri';
@@ -32,7 +52,7 @@ Future<void> generateInvoicePdf(Map<String, dynamic> data) async {
         pw.Center(
           child: pw.Text(
             "Invoice",
-            style: pw.TextStyle(fontSize: 36, fontWeight: pw.FontWeight.bold),
+            style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
           ),
         ),
         pw.SizedBox(height: 20),
@@ -88,9 +108,9 @@ Future<void> generateInvoicePdf(Map<String, dynamic> data) async {
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text("Customer Details",
+              pw.Text("Customer",
                   style: pw.TextStyle(
-                      fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                      fontSize: 14, fontWeight: pw.FontWeight.bold)),
               pw.SizedBox(height: 10),
               pw.Text("Name: ${data['selectedCustomerDetails']['name'] ?? ''}",
                   style: pw.TextStyle(fontSize: 12)),
@@ -107,24 +127,23 @@ Future<void> generateInvoicePdf(Map<String, dynamic> data) async {
           ),
         ),
         pw.SizedBox(height: 20),
+
         // 5. Items table
-        pw.Table.fromTextArray(
+        pw.TableHelper.fromTextArray(
           headers: [
-            'Item / Details',
-            'Unit Cost',
-            'Sum Cost',
-            'Discount',
-            'Tax',
+            'Product Name',
+            'UOM',
+            'Quantity',
+            'Rate',
             'Total'
           ],
           data: (data['items'] as List<dynamic>).map<List<String>>((item) {
             final Map<String, dynamic> mapItem = item as Map<String, dynamic>;
             return [
               mapItem['product_name'] ?? '',
-              mapItem['unit_cost'].toString(),
-              mapItem['sum_cost'].toString(),
-              mapItem['discount'].toString(),
-              mapItem['tax'].toString(),
+              mapItem['uom'] ?? '',
+              mapItem['quantity'].toString(),
+              mapItem['rate'].toString(),
               mapItem['total'].toString(),
             ];
           }).toList(),
@@ -140,16 +159,15 @@ Future<void> generateInvoicePdf(Map<String, dynamic> data) async {
             1: pw.FlexColumnWidth(1),
             2: pw.FlexColumnWidth(1),
             3: pw.FlexColumnWidth(1),
-            4: pw.FlexColumnWidth(1),
-            5: pw.FlexColumnWidth(1),
           },
           border: pw.TableBorder.all(color: PdfColors.black, width: 0.5),
         ),
+
         pw.SizedBox(height: 20),
         // 6. Total amount
         pw.Container(
           alignment: pw.Alignment.centerRight,
-          child: pw.Text("Total Amount: \$${data['totalAmount']}",
+          child: pw.Text("Total Amount: Rs ${data['totalAmount']}",
               style:
               pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
         ),
@@ -166,7 +184,7 @@ Future<void> generateInvoicePdf(Map<String, dynamic> data) async {
               style: pw.TextStyle(
                   fontSize: 14, fontStyle: pw.FontStyle.italic)),
         ),
-        pw.SizedBox(height: 20),
+/*        pw.SizedBox(height: 20),
         // 8. Terms and conditions
         pw.Container(
           alignment: pw.Alignment.center,
@@ -175,7 +193,7 @@ Future<void> generateInvoicePdf(Map<String, dynamic> data) async {
             textAlign: pw.TextAlign.center,
             style: pw.TextStyle(fontSize: 10),
           ),
-        ),
+        ),*/
       ],
     ),
   );

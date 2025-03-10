@@ -1,4 +1,5 @@
 import 'package:billing_application/data/db_crud.dart';
+import 'package:billing_application/utils/toasts.dart';
 import 'package:get/get.dart';
 
 class InvoiceDetailController extends GetxController {
@@ -30,6 +31,10 @@ class InvoiceDetailController extends GetxController {
   ///
   /// You may implement this method to update the database.
   Future<void> saveChanges() async {
+    if(items.isEmpty){
+      errorToast("Add at least 1 item");
+      return;
+    }
     await salesRepo.updateInvoiceItems(invoice.value!['id'], items);
   }
 }

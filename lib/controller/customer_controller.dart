@@ -1,4 +1,6 @@
 import 'package:billing_application/data/db_crud.dart';
+import 'package:billing_application/utils/toasts.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
@@ -40,8 +42,17 @@ class CustomerController extends GetxController {
 
   /// Deletes a customer by id.
   Future<void> deleteCustomer(int id) async {
-    await customerRepo.deleteCustomer(id);
-    loadCustomers();
+    try{
+      await customerRepo.deleteCustomer(id);
+      loadCustomers();
+    } catch(e){
+      if (e.toString().contains("FOREIGN KEY constraint failed")) {
+        warningToast("Customer in use, can not be deleted");
+      }else{
+        debugPrint(e.toString());
+        errorToast("Failed to delete customer");
+      }
+    }
   }
 
 

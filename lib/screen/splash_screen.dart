@@ -19,7 +19,7 @@ class SplashScreen extends StatelessWidget {
           children: <Widget>[
             const SizedBox(height: 16.0),
             Text(
-              'Billing Software by Khushwant',
+              'Invoicely',
               style: TextStyle(
                 fontSize: 24.0,
                 color: colors.onPrimaryContainer,

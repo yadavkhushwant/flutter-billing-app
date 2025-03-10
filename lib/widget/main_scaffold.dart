@@ -38,6 +38,7 @@ class MainScaffold extends StatelessWidget {
       ),
       drawer: desktop ? null : const Drawer(child: SideNavigation()),
       body: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (desktop)
             Obx(() => navController.isSideNavVisible.value

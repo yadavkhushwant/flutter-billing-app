@@ -3,6 +3,7 @@ import 'package:billing_application/controller/invoice_details_controller.dart';
 import 'package:billing_application/controller/product_controller.dart';
 import 'package:billing_application/controller/uom_controller.dart';
 import 'package:billing_application/utils/data_helpers.dart';
+import 'package:billing_application/utils/toasts.dart';
 import 'package:billing_application/widget/button.dart';
 import 'package:billing_application/widget/info_text.dart';
 import 'package:billing_application/widget/input_decoration.dart';
@@ -244,10 +245,7 @@ class InvoiceDetailScreen extends StatelessWidget {
                         quantityController.clear();
                         rateController.clear();
                       } else {
-                        Get.snackbar("Error", "Invalid item details",
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.red,
-                            colorText: Colors.white);
+                        errorToast("Invalid Item Details");
                       }
                     },
                   ),
@@ -335,10 +333,7 @@ class InvoiceDetailScreen extends StatelessWidget {
                 text: "Save Changes",
                 onPressed: () async {
                   await invoiceDetailController.saveChanges();
-                  Get.snackbar("Success", "Invoice updated",
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.green,
-                      colorText: Colors.white);
+                  successToast("Invoice updated");
                 },
               ),
             ),

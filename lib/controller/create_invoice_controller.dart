@@ -1,4 +1,5 @@
 import 'package:billing_application/controller/customer_controller.dart';
+import 'package:billing_application/utils/toasts.dart';
 import 'package:billing_application/widget/create_customer_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -66,11 +67,7 @@ class CreateInvoiceController extends GetxController {
       quantityController.clear();
       rateController.clear();
     } else {
-      Get.snackbar("Error",
-          "Please fill in all invoice item details correctly.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
+      errorToast("Please fill in all invoice item details correctly");
     }
   }
 
@@ -120,7 +117,7 @@ class CreateInvoiceController extends GetxController {
       'selectedCustomerDetails': selectedCustomerDetails.value != null
           ? Map<String, dynamic>.from(selectedCustomerDetails.value!)
           : {},
-      'invoiceDate': invoiceDate.value,
+      'invoiceDate': getFormattedDate(invoiceDate.value.toString()),
       'items': List<Map<String, dynamic>>.from(items),
       'totalAmount': totalAmount.value,
       'invoiceNumber': newInvoiceNumber,
@@ -140,48 +137,23 @@ class CreateInvoiceController extends GetxController {
 
   Future<void> saveInvoice() async {
     if (selectedCustomer.value == null || items.isEmpty) {
-      Get.snackbar(
-        "Error",
-        "Please select a customer and add at least one invoice item.",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      errorToast("Please select a customer and add at least one invoice item");
       return;
     }
     await _saveInvoice();
-    Get.snackbar(
-      "Success",
-      "Invoice created successfully!",
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-    );
+    successToast("Invoice created successfully!");
   }
 
   Future<void> saveAndPrintInvoice() async {
     if (selectedCustomer.value == null || items.isEmpty) {
-      Get.snackbar(
-        "Error",
-        "Please select a customer and add at least one invoice item.",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      errorToast("Please select a customer and add at least one invoice item");
       return;
     }
 
     // Save the invoice and capture the returned data.
     final savedInvoiceData = await _saveInvoice();
 
-    Get.snackbar(
-      "Success",
-      "Invoice created successfully!",
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-    );
-
+    successToast("Invoice created successfully!");
     // Now print the invoice using the saved data copy.
     await generateInvoicePdf(savedInvoiceData);
   }

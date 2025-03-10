@@ -1,5 +1,6 @@
 // In file: lib/controller/uom_controller.dart
 import 'package:billing_application/data/db_crud.dart';
+import 'package:billing_application/utils/toasts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
@@ -43,17 +44,19 @@ class UomController extends GetxController {
   /// Deletes a UOM record, showing a friendly error message if it fails.
   Future<void> deleteUom(int id) async {
     try {
+      bool isUsed = await uomRepo.isUomUsed(id);
+
+      if (isUsed) {
+        warningToast("UOM in use, can not be deleted");
+        return;
+      }
+
       await uomRepo.deleteUOM(id);
       loadUoms();
     } catch (e) {
       debugPrint(e.toString());
-      Get.snackbar(
-        "Deletion Error",
-        "Failed to delete UOM",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      errorToast("Failed to delete UOM");
     }
   }
+
 }

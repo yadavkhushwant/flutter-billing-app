@@ -1,3 +1,4 @@
+import 'package:billing_application/screen/about_screen.dart';
 import 'package:billing_application/screen/create_invoice_screen.dart';
 import 'package:billing_application/screen/customer_details_screen.dart';
 import 'package:billing_application/screen/home_screen.dart';
@@ -23,5 +24,6 @@ final routes = [
   createRoute(name: '/manage-products', page: const ManageProductScreen()),
   createRoute(name: '/manage-payments', page: const ManagePaymentScreen()),
   createRoute(name: '/settings', page: SettingsScreen()),
+  createRoute(name: '/about', page: AboutScreen()),
 
 ];

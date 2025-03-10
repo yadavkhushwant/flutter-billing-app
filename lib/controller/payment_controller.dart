@@ -1,4 +1,5 @@
 import 'package:billing_application/data/db_crud.dart';
+import 'package:billing_application/utils/toasts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
@@ -80,13 +81,7 @@ class PaymentController extends GetxController {
       loadPayments();
     } catch (e) {
       debugPrint(e.toString());
-      Get.snackbar(
-        "Deletion Error",
-        "Failed to delete Payment",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      errorToast("ailed to delete Payment");
     }
   }
 }

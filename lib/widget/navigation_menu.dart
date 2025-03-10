@@ -83,7 +83,9 @@ class SideNavigation extends StatelessWidget {
                   return settingsController.logoPath.value.isNotEmpty
                       ? Image.file(
                     File(settingsController.logoPath.value),
-                    fit: BoxFit.cover,
+                    fit: BoxFit.contain,
+                    width: 150,
+                    height: 50,
                   )
                       : CircleAvatar(
                     child: const Icon(Icons.person_2, size: 24),
@@ -95,9 +97,11 @@ class SideNavigation extends StatelessWidget {
                       settingsController.settingsData['businessName'] ?? 'Invoicely',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     );
                   }
                 ),
@@ -136,6 +140,9 @@ class SideNavigation extends StatelessWidget {
 
           buildNavItem(context,
               icon: Icons.settings, title: "Settings", routeName: '/settings'),
+
+          buildNavItem(context,
+              icon: Icons.info, title: "About", routeName: '/about'),
           // Add more navigation items here.
         ],
       ),

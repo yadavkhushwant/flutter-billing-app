@@ -1,3 +1,4 @@
+import 'package:billing_application/controller/theme_controller.dart';
 import 'package:billing_application/widget/navigation_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -6,27 +7,48 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
   Get.put(NavigationController());
-  sqfliteFfiInit();
+  Get.put(ThemeController()); // Initialize theme controller
 
-  // Optionally, override the default database factory with the FFI one:
-  // (this makes all sqflite calls use FFI)
+  sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
+
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Invoicely',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
-        useMaterial3: true,
-      ),
-      initialRoute: '/',
-      getPages: routes,
-    );
+    final ThemeController themeController = Get.find<ThemeController>();
+
+    return Obx(() {
+      bool isDark = themeController.isDarkMode.value;
+      Color selectedColor = themeController.selectedColor.value;
+
+      return GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Invoicely',
+        theme: ThemeData(
+          brightness: Brightness.light,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: selectedColor,
+            brightness: Brightness.light, // Ensure brightness matches
+          ),
+          useMaterial3: true,
+        ),
+        darkTheme: ThemeData(
+          brightness: Brightness.dark,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: selectedColor,
+            brightness: Brightness.dark, // Ensure brightness matches
+          ),
+          useMaterial3: true,
+        ),
+        themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+        initialRoute: '/',
+        getPages: routes,
+      );
+    });
   }
 }

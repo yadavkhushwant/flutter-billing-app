@@ -96,6 +96,28 @@ class UOMRepository {
     final db = await _dbHelper.database;
     return await db.delete('uom', where: 'id = ?', whereArgs: [id]);
   }
+
+  Future<bool> isUomUsed(int uomId) async {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+        "SELECT COUNT(*) as count FROM products WHERE uom_id = ?", [uomId]
+    );
+
+    int count = result.first["count"] ?? 0;
+    return count > 0; // Returns true if UOM is used
+  }
+
+  Future<String> getUomName(int productId) async {
+    final db = await DatabaseHelper.instance.database;
+    final result = await db.rawQuery('''
+      SELECT u.name as uom
+      FROM products p
+      LEFT JOIN uom u ON p.uom_id = u.id
+      WHERE p.id = ?
+    ''', [productId]);
+
+    return result.isNotEmpty ? result.first['uom'] as String : 'N/A';
+  }
 }
 
 /// Repository for performing CRUD operations on the Products table.
@@ -299,7 +321,7 @@ class PaymentRepository {
     String? whereString =
     whereClauses.isNotEmpty ? whereClauses.join(" AND ") : null;
     return await db.query('customer_payments',
-        where: whereString, whereArgs: whereArgs);
+        where: whereString, whereArgs: whereArgs, orderBy: 'payment_date DESC');
   }
 
   /// Retrieves payments for a given customer, with optional month/year filters.
