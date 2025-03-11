@@ -28,7 +28,7 @@ class DailySalesChart extends StatelessWidget {
             BarChartRodData(
               toY: item['total_sales'], // Sales amount
               color: Colors.blue, // Customize color
-              width: 20,
+              width: 10,
               borderRadius: BorderRadius.circular(4),
             ),
           ],
@@ -44,7 +44,7 @@ class DailySalesChart extends StatelessWidget {
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.only(top: 32.0, bottom: 12.0, left: 12.0, right: 12.0),
             child: BarChart(
               BarChartData(
                 barGroups: barGroups,
