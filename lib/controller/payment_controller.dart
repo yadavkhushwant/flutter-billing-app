@@ -68,20 +68,23 @@ class PaymentController extends GetxController {
   Future<void> addPayment(Map<String, dynamic> payment) async {
     await paymentRepo.addPayment(payment);
     loadPayments();
+    successToast("Payment added successfully");
   }
 
   Future<void> updatePayment(int id, Map<String, dynamic> payment) async {
     await paymentRepo.updatePayment(id, payment);
     loadPayments();
+    successToast("Payment updated successfully");
   }
 
   Future<void> deletePayment(int id) async {
     try {
       await paymentRepo.deletePayment(id);
       loadPayments();
+      successToast("Payment deleted successfully");
     } catch (e) {
       debugPrint(e.toString());
-      errorToast("ailed to delete Payment");
+      errorToast("failed to delete Payment");
     }
   }
 }

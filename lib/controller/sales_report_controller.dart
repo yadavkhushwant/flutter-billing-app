@@ -20,7 +20,7 @@ class SalesReportController extends GetxController {
       month: selectedMonth.value,
       year: selectedYear.value,
     );
-    sales.assignAll(data);
+    sales.value = data;
   }
 
   /// Update the selected month and/or year and reload the sales.

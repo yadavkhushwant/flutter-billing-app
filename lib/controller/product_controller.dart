@@ -32,6 +32,7 @@ class ProductController extends GetxController {
   Future<Map<String, dynamic>> addProduct(Map<String, dynamic> product) async {
     final newProduct = await productRepo.insertProduct(product);
     loadProducts();
+    successToast("Product added successfully");
     return newProduct;
   }
 
@@ -39,6 +40,7 @@ class ProductController extends GetxController {
   Future<void> updateProduct(int id, Map<String, dynamic> product) async {
     await productRepo.updateProduct(id, product);
     loadProducts();
+    successToast("Product updated successfully");
   }
 
   /// Deletes a product.
@@ -46,6 +48,7 @@ class ProductController extends GetxController {
     try{
       await productRepo.deleteProduct(id);
       loadProducts();
+      successToast("Product deleted successfully");
     } catch(e){
       if (e.toString().contains("FOREIGN KEY constraint failed")) {
         warningToast("Product in use, can not be deleted");

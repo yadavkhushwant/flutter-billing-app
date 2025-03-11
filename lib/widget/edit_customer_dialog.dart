@@ -85,7 +85,7 @@ class EditCustomerDialog extends StatelessWidget {
           text: "Cancel",
         ),
         Button(
-          onPressed: () {
+          onPressed: () async {
             if (_formKey.currentState?.validate() ?? false) {
               final updatedCustomer = {
                 'name': nameController.text,
@@ -97,8 +97,10 @@ class EditCustomerDialog extends StatelessWidget {
                 'email': emailController.text,
               };
 
-              controller.updateCustomer(customer['id'], updatedCustomer);
-              Get.back();
+              final isUpdated = await controller.updateCustomer(customer['id'], updatedCustomer);
+              if(isUpdated){
+                Get.back();
+              }
             }
           },
           text: "Save",

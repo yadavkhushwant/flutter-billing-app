@@ -33,12 +33,14 @@ class UomController extends GetxController {
   Future<void> addUom(Map<String, dynamic> uom) async {
     await uomRepo.insertUOM(uom);
     loadUoms();
+    successToast("UOM added successfully");
   }
 
   /// Updates an existing UOM record.
   Future<void> updateUom(int id, Map<String, dynamic> uom) async {
     await uomRepo.updateUOM(id, uom);
     loadUoms();
+    successToast("UOM updated successfully");
   }
 
   /// Deletes a UOM record, showing a friendly error message if it fails.
@@ -53,6 +55,7 @@ class UomController extends GetxController {
 
       await uomRepo.deleteUOM(id);
       loadUoms();
+      successToast("UOM deleted successfully");
     } catch (e) {
       debugPrint(e.toString());
       errorToast("Failed to delete UOM");

@@ -1,4 +1,5 @@
 import 'package:billing_application/data/database_helper.dart';
+import 'package:intl/intl.dart';
 
 /// Repository for performing CRUD operations on the Customer table.
 class CustomerRepository {
@@ -259,6 +260,85 @@ class SalesReportRepository {
       );
     });
   }
+
+  /// Retrieves the total sales amount for a given month and year.
+  Future<double> getTotalSalesByMonthYear({
+    required int month,
+    required int year,
+  }) async {
+    final db = await _dbHelper.database;
+    final monthStr = month.toString().padLeft(2, '0');
+    final yearStr = year.toString();
+
+    final result = await db.rawQuery('''
+      SELECT SUM(total_amount) as total_sales
+      FROM sales
+      WHERE strftime('%m', sale_date) = ? 
+      AND strftime('%Y', sale_date) = ?
+    ''', [monthStr, yearStr]);
+
+    return (result.first['total_sales'] as num?)?.toDouble() ?? 0.0;
+  }
+
+  Future<List<Map<String, dynamic>>> getTopSellingProducts() async {
+    final db = await _dbHelper.database;
+    final result = await db.rawQuery('''
+    SELECT product_name, SUM(quantity) AS total_quantity
+    FROM sale_items
+    GROUP BY product_name
+    ORDER BY total_quantity DESC
+    LIMIT 10
+  ''');
+    return result;
+  }
+
+  Future<List<Map<String, dynamic>>> fetchDailySales2() async {
+    final db = await DatabaseHelper.instance.database;
+
+    List<Map<String, dynamic>> result = await db.rawQuery('''
+      SELECT sale_date, SUM(total_amount) AS total_sales
+      FROM sales
+      WHERE sale_date >= date('now', '-7 days') -- Fetch last 7 days sales
+      GROUP BY sale_date
+      ORDER BY sale_date;
+    ''');
+    return result;
+  }
+
+  Future<List<Map<String, dynamic>>> fetchDailySales() async {
+    final db = await DatabaseHelper.instance.database;
+
+    List<Map<String, dynamic>> result = await db.rawQuery('''
+  SELECT DATE(sale_date) AS sale_date, COALESCE(SUM(total_amount), 0) AS total_sales
+  FROM sales
+  WHERE DATE(sale_date) >= DATE('now', '-6 days')
+  GROUP BY DATE(sale_date)
+  ORDER BY DATE(sale_date);
+''');
+
+    print("Raw SQL Result: $result"); // Debugging
+
+    // Ensure we have all 7 days
+    List<Map<String, dynamic>> finalSales = [];
+    DateTime today = DateTime.now();
+
+    for (int i = 6; i >= 0; i--) {
+      DateTime day = today.subtract(Duration(days: i));
+      String formattedDate = DateFormat('yyyy-MM-dd').format(day);
+
+      // Find sales data for this date
+      var existingData = result.firstWhere(
+            (row) => row['sale_date'] == formattedDate,
+        orElse: () => {'sale_date': formattedDate, 'total_sales': 0.0},
+      );
+
+      finalSales.add(existingData);
+    }
+
+    print("Processed Final Sales: $finalSales"); // Debugging
+    return finalSales;
+  }
+
 
 }
 

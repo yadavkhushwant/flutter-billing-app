@@ -29,15 +29,40 @@ class CustomerController extends GetxController {
 
   /// Adds a new customer and refreshes the list.
   Future<Map<String, dynamic>> addCustomer(Map<String, dynamic> customer) async {
-    final newCustomer = await customerRepo.insertCustomer(customer);
-    loadCustomers(); // Refresh customer list
-    return newCustomer; // Return the inserted customer
+    try{
+      final newCustomer = await customerRepo.insertCustomer(customer);
+      loadCustomers(); // Refresh customer list
+      successToast("Customer created successfully");
+      return newCustomer; // Return the inserted customer
+    } catch(e){
+      if (e.toString().contains("UNIQUE constraint failed: customer.phone")) {
+        warningToast("Phone number already exists");
+      }else{
+        debugPrint(e.toString());
+        errorToast("Failed to create customer");
+      }
+      return {};
+    }
+
   }
 
   /// Updates an existing customer.
-  Future<void> updateCustomer(int id, Map<String, dynamic> updatedData) async {
-    await customerRepo.updateCustomer(id, updatedData);
-    loadCustomers();
+  Future<bool> updateCustomer(int id, Map<String, dynamic> updatedData) async {
+    try{
+      await customerRepo.updateCustomer(id, updatedData);
+      loadCustomers();
+      successToast("Customer Updated successfully");
+      return true;
+    } catch(e){
+      if (e.toString().contains("UNIQUE constraint failed: customer.phone")) {
+        warningToast("Phone number already exists");
+      }else{
+        debugPrint(e.toString());
+        errorToast("Failed to update customer");
+      }
+      return false;
+    }
+
   }
 
   /// Deletes a customer by id.
@@ -45,6 +70,7 @@ class CustomerController extends GetxController {
     try{
       await customerRepo.deleteCustomer(id);
       loadCustomers();
+      successToast("Customer deleted successfully");
     } catch(e){
       if (e.toString().contains("FOREIGN KEY constraint failed")) {
         warningToast("Customer in use, can not be deleted");

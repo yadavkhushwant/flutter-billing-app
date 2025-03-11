@@ -90,6 +90,7 @@ class CreateCustomerDialog extends StatelessWidget {
               };
 
               var customer = await customerController.addCustomer(newCustomer);
+              if (customer.isEmpty) return;
 
               // Clear the fields for next time.
               nameController.clear();
