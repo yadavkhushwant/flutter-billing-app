@@ -24,11 +24,19 @@ jobs:
       - name: Build Windows App
         run: flutter build windows --release
 
+      - name: Copy Required DLLs
+        run: |
+          cp windows/sqlite3.dll build/windows/x64/runner/Release/
+          cp windows/sqlite3.def build/windows/x64/runner/Release/
+          cp windows/msvcp140.dll build/windows/x64/runner/Release/
+          cp windows/vcruntime140.dll build/windows/x64/runner/Release/
+          cp windows/vcruntime140_1.dll build/windows/x64/runner/Release/
+
       - name: Debug Build Output
-        run: ls -Recurse build\windows\x64\runner\Release\
+        run: ls -Recurse build/windows/x64/runner/Release/
 
       - name: Package Windows App
-        run: Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath windows-app.zip
+        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath windows-app.zip
 
       - name: Upload Windows App
         uses: actions/upload-artifact@v4
