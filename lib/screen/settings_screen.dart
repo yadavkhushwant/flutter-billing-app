@@ -1,11 +1,14 @@
 import 'dart:io';
-import 'package:billing_application/widget/button.dart';
-import 'package:billing_application/widget/input_decoration.dart';
-import 'package:billing_application/widget/main_scaffold.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:billing_application/widget/main_scaffold.dart';
+import 'package:billing_application/widget/button.dart';
+import 'package:billing_application/widget/input_decoration.dart';
 import 'package:billing_application/controller/settings_controller.dart';
 import 'package:billing_application/controller/theme_controller.dart';
+
+import '../widget/database_backup_card.dart';
 
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
@@ -27,7 +30,7 @@ class SettingsScreen extends StatelessWidget {
             return SingleChildScrollView(
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight, // Ensure full height usage
+                  minHeight: constraints.maxHeight,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -105,7 +108,6 @@ class SettingsScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 32),
-
                         // Theme Selection
                         const Text("Theme Settings",
                             style: TextStyle(
@@ -126,7 +128,6 @@ class SettingsScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
-
                         // Dark Mode Toggle
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -141,9 +142,8 @@ class SettingsScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-
                         const SizedBox(height: 32),
-                        // Save Button
+                        // Save Settings Button
                         Center(
                           child: Button(
                             onPressed: () {
@@ -154,7 +154,9 @@ class SettingsScreen extends StatelessWidget {
                             text: "Save Settings",
                           ),
                         ),
-                        const SizedBox(height: 20), // Add space to prevent bottom cutting
+                        // Backup Card Section
+                        DatabaseBackupCard(),
+                        const SizedBox(height: 20),
                       ],
                     ),
                   ),
@@ -166,7 +168,6 @@ class SettingsScreen extends StatelessWidget {
       }),
     );
   }
-
 
   Widget _colorOption(Color color) {
     return GestureDetector(

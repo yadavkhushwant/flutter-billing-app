@@ -11,7 +11,7 @@ void main() {
 
   sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
-
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
