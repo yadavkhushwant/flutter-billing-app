@@ -164,7 +164,7 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _colorOption(Color color) {
+  Widget _colorOption(MaterialColor color) {
     return GestureDetector(
       onTap: () {
         themeController.setThemeColor(color);
