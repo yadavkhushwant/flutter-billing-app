@@ -1,4 +1,9 @@
+import 'dart:io' as io;
+import 'package:flutter/foundation.dart';
+import 'package:path/path.dart' as p;
+import 'package:sqflite_common/sqlite_api.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:path_provider/path_provider.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
@@ -14,7 +19,12 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    final dbPath = 'invoicing.db';
+    final dbName = 'invoicing.db';
+    final io.Directory appDocumentsDir = await getApplicationDocumentsDirectory();
+    String dbPath = p.join(appDocumentsDir.path, 'invoicely', 'databases', dbName);
+
+    debugPrint("DbPath: $dbPath");
+
     return await databaseFactoryFfi.openDatabase(
       dbPath,
       options: OpenDatabaseOptions(

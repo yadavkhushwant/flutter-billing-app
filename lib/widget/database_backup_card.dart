@@ -40,7 +40,7 @@ class DatabaseBackupCard extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
 
-            Row(
+         /*   Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Obx(() => Text(
@@ -69,6 +69,55 @@ class DatabaseBackupCard extends StatelessWidget {
                   }),
                 ),
               ],
+            ),*/
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Obx(() {
+                  if (backupController.isLoadingEmail.value) {
+                    return Row(
+                      children: [
+                        const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text("Loading Email...", style: TextStyle(fontWeight: FontWeight.w500)),
+                      ],
+                    );
+                  }
+                  return Text(
+                    backupController.backupEmail.value.isEmpty
+                        ? 'Not Authenticated'
+                        : backupController.backupEmail.value,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  );
+                }),
+
+                const SizedBox(height: 8),
+
+                Center(
+                  child: Obx(() {
+                    if (backupController.isLoadingEmail.value) {
+                      return const SizedBox(); // Hide buttons while loading
+                    }
+                    if (backupController.backupEmail.value.isEmpty) {
+                      return Button(
+                        type: ButtonType.primary,
+                        onPressed: () => backupController.login(),
+                        text: "Login",
+                      );
+                    } else {
+                      return Button(
+                        type: ButtonType.secondary,
+                        onPressed: () => backupController.clearCredentials(),
+                        text: "Logout",
+                      );
+                    }
+                  }),
+                ),
+              ],
             ),
 
             const Divider(height: 20, thickness: 1),
@@ -85,8 +134,9 @@ class DatabaseBackupCard extends StatelessWidget {
             const SizedBox(height: 16),
             // Progress Indicator (if backing up)
             Obx(() {
-              if (!backupController.isBackingUp.value)
+              if (!backupController.isBackingUp.value) {
                 return const SizedBox.shrink();
+              }
               final progressPercent =
                   (backupController.uploadProgress.value * 100)
                       .toStringAsFixed(2);

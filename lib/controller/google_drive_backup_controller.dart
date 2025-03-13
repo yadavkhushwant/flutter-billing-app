@@ -42,6 +42,7 @@ class BackupController extends GetxController {
   var isBackingUp = false.obs;
   var lastBackup = ''.obs;
   var backupEmail = ''.obs;
+  var isLoadingEmail = false.obs;
 
   // Progress Tracking
   var uploadProgress = 0.0.obs;
@@ -58,8 +59,13 @@ class BackupController extends GetxController {
 
   //   /// Initialize and fetch authenticated email.
   Future<void> _initializeBackupEmail() async {
+    isLoadingEmail.value = true;
     final storedCredentials = await loadCredentials();
-    if (storedCredentials == null) return; // Don't prompt login if no credentials
+
+    if (storedCredentials == null) {
+      isLoadingEmail.value = false;
+      return;
+    }
 
     try {
       final client = authenticatedClient(http.Client(), storedCredentials);
@@ -68,6 +74,8 @@ class BackupController extends GetxController {
       client.close();
     } catch (e) {
       debugPrint("Stored credentials are invalid, requiring re-authentication: $e");
+    } finally {
+      isLoadingEmail.value = false;
     }
   }
 
@@ -94,6 +102,7 @@ class BackupController extends GetxController {
   /// **LOGIN Function (Does NOT trigger backup)**
   Future<void> login() async {
     try {
+      print("khushwant00");
       final client = await getAuthenticatedClient();
       final email = await getUserEmail(client);
       if (email != null) {
@@ -220,6 +229,7 @@ Future<String?> getUserEmail(http.Client client) async {
   try {
     final response =
     await client.get(Uri.parse("https://www.googleapis.com/oauth2/v3/userinfo"));
+    print(response.toString());
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return data["email"];
