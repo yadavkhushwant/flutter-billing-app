@@ -34,12 +34,9 @@ class Button extends StatelessWidget {
     // Define styles based on button type
     final isPrimary = type == ButtonType.primary;
     final backgroundColor = isPrimary ? colorScheme.primary : colorScheme.surface;
-    final disabledBackgroundColor = isPrimary
-        ? colorScheme.primary.withAlpha(180)
-        : colorScheme.surface.withValues(alpha: 0.7);
+    final disabledBackgroundColor = isPrimary ? colorScheme.primary.withAlpha(180) : Colors.transparent;
     final borderColor = isPrimary ? Colors.transparent : colorScheme.primary;
     final foregroundColor = isPrimary ? Colors.white : colorScheme.primary;
-
 
     return ElevatedButton(
       onPressed: isLoading ? null : onPressed,

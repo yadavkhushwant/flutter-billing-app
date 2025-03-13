@@ -36,25 +36,27 @@ class DatabaseBackupCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Backup Email Section
-            const Text("Backup Account", style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text("Backup Account",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Obx(() => Text(
-                  backupController.backupEmail.value.isEmpty
-                      ? 'Not Authenticated'
-                      : backupController.backupEmail.value,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                )),
+                      backupController.backupEmail.value.isEmpty
+                          ? 'Not Authenticated'
+                          : backupController.backupEmail.value,
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    )),
                 const SizedBox(height: 8),
                 Center(
                   child: Obx(() {
                     if (backupController.backupEmail.value.isEmpty) {
                       return Button(
                         type: ButtonType.primary,
-                        onPressed: () => backupController.login(), // Only logs in
+                        onPressed: () => backupController.login(),
+                        // Only logs in
                         text: "Login",
                       );
                     } else {
@@ -69,21 +71,27 @@ class DatabaseBackupCard extends StatelessWidget {
               ],
             ),
 
-
             const Divider(height: 20, thickness: 1),
             // Last Backup Section
-            const Text("Last Backup", style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text("Last Backup",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
             Obx(() => Text(
-              backupController.lastBackup.value.isEmpty ? 'Never' : backupController.lastBackup.value,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            )),
+                  backupController.lastBackup.value.isEmpty
+                      ? 'Never'
+                      : backupController.lastBackup.value,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                )),
             const SizedBox(height: 16),
             // Progress Indicator (if backing up)
             Obx(() {
-              if (!backupController.isBackingUp.value) return const SizedBox.shrink();
-              final progressPercent = (backupController.uploadProgress.value * 100).toStringAsFixed(2);
-              final uploaded = formatBytes(backupController.uploadedBytes.value);
+              if (!backupController.isBackingUp.value)
+                return const SizedBox.shrink();
+              final progressPercent =
+                  (backupController.uploadProgress.value * 100)
+                      .toStringAsFixed(2);
+              final uploaded =
+                  formatBytes(backupController.uploadedBytes.value);
               final total = formatBytes(backupController.totalBytes.value);
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -106,19 +114,24 @@ class DatabaseBackupCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Button(
-                  onPressed: backupController.isBackingUp.value ? null : () => backupController.performBackup(),
-                  text: "Backup Now",
-                ),
+                Obx(() => !backupController.isBackingUp.value
+                    ? Button(
+                        onPressed: () => backupController.performBackup(),
+                        text: "Backup Now",
+                        type: ButtonType.primary,
+                      )
+                    : const SizedBox.shrink()),
+
                 const SizedBox(width: 16),
+
                 Obx(() => backupController.isBackingUp.value
                     ? Button(
-                  onPressed: () {
-                    backupController.isCancelled.value = true;
-                  },
-                  text: "Cancel Backup",
-                  type: ButtonType.secondary,
-                )
+                        onPressed: () {
+                          backupController.isCancelled.value = true;
+                        },
+                        text: "Cancel Backup",
+                        type: ButtonType.secondary,
+                      )
                     : const SizedBox.shrink()),
               ],
             ),

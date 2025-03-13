@@ -1,11 +1,12 @@
 import 'package:billing_application/controller/theme_controller.dart';
 import 'package:billing_application/widget/navigation_menu.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'routes.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-void main() {
+Future<void> main() async {
   Get.put(NavigationController());
   Get.put(ThemeController()); // Initialize theme controller
 
@@ -13,6 +14,7 @@ void main() {
   databaseFactory = databaseFactoryFfi;
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
+  await dotenv.load(fileName: ".env");
 }
 
 class MyApp extends StatelessWidget {
