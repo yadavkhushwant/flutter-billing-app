@@ -6,7 +6,7 @@ enum ButtonType { primary, secondary }
 
 class Button extends StatelessWidget {
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final bool isLoading;
   final IconData? leadingIcon;
   final ButtonType type;
@@ -25,11 +25,21 @@ class Button extends StatelessWidget {
     final colorScheme = Theme.of(Get.context!).colorScheme;
 
     // Define styles based on button type
+    // final isPrimary = type == ButtonType.primary;
+    // final backgroundColor = isPrimary ? colorScheme.primary : Colors.transparent;
+    // final disabledBackgroundColor = isPrimary ? colorScheme.primary.withAlpha(180) : Colors.transparent;
+    // final borderColor = isPrimary ? Colors.transparent : colorScheme.primary;
+    // final foregroundColor = isPrimary ? Colors.white : colorScheme.primary;
+
+    // Define styles based on button type
     final isPrimary = type == ButtonType.primary;
-    final backgroundColor = isPrimary ? colorScheme.primary : Colors.transparent;
-    final disabledBackgroundColor = isPrimary ? colorScheme.primary.withAlpha(180) : Colors.transparent;
+    final backgroundColor = isPrimary ? colorScheme.primary : colorScheme.surface;
+    final disabledBackgroundColor = isPrimary
+        ? colorScheme.primary.withAlpha(180)
+        : colorScheme.surface.withValues(alpha: 0.7);
     final borderColor = isPrimary ? Colors.transparent : colorScheme.primary;
     final foregroundColor = isPrimary ? Colors.white : colorScheme.primary;
+
 
     return ElevatedButton(
       onPressed: isLoading ? null : onPressed,

@@ -40,7 +40,6 @@ class DashboardController extends GetxController {
 
   Future<void> fetchDailySales() async {
     dailySales.value = await salesRepo.fetchDailySales();
-    print(dailySales);
   }
 
   @override

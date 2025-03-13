@@ -1,55 +1,137 @@
-import 'package:billing_application/drive_backup_restore/another.dart';
+import 'package:billing_application/controller/google_drive_backup_controller.dart';
+import 'package:billing_application/widget/button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class DatabaseBackupCard extends StatelessWidget {
-  DatabaseBackupCard({Key? key}) : super(key: key);
+  DatabaseBackupCard({super.key});
 
   final BackupController backupController = Get.put(BackupController());
 
+  /// Helper: Converts bytes to a human-readable string.
+  String formatBytes(int bytes) {
+    const kb = 1024;
+    const mb = kb * 1024;
+    if (bytes >= mb) {
+      return "${(bytes / mb).toStringAsFixed(2)} MB";
+    } else if (bytes >= kb) {
+      return "${(bytes / kb).toStringAsFixed(2)} KB";
+    } else {
+      return "$bytes B";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
+      title: const Text(
+        "Database Backup",
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+      ),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 560),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Backup Settings",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            // Backup Email Section
+            const Text("Backup Account", style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 6),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Obx(() => Text(
+                  backupController.backupEmail.value.isEmpty
+                      ? 'Not Authenticated'
+                      : backupController.backupEmail.value,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                )),
+                const SizedBox(height: 8),
+                Center(
+                  child: Obx(() {
+                    if (backupController.backupEmail.value.isEmpty) {
+                      return Button(
+                        type: ButtonType.primary,
+                        onPressed: () => backupController.login(), // Only logs in
+                        text: "Login",
+                      );
+                    } else {
+                      return Button(
+                        type: ButtonType.secondary,
+                        onPressed: () => backupController.clearCredentials(),
+                        text: "Logout",
+                      );
+                    }
+                  }),
+                ),
+              ],
             ),
-            const SizedBox(height: 10),
-            Obx(() => Text("Backup Email: ${backupController.backupEmail.value.isEmpty ? 'Not Authenticated' : backupController.backupEmail.value}")),
-            const SizedBox(height: 10),
-            Center(
-              child: TextButton(
-                onPressed: () => backupController.clearCredentials(),
-                child: const Text("Change Email"),
-              ),
-            ),
-            const SizedBox(height: 10),
+
+
+            const Divider(height: 20, thickness: 1),
+            // Last Backup Section
+            const Text("Last Backup", style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 6),
             Obx(() => Text(
-                "Last Backup: ${backupController.lastBackup.value.isEmpty ? 'Never' : backupController.lastBackup.value}")),
-            const SizedBox(height: 10),
-            Obx(() => backupController.isBackingUp.value
-                ? const LinearProgressIndicator()
-                : const SizedBox.shrink()),
-            const SizedBox(height: 10),
-            Center(
-              child: Obx(() => ElevatedButton(
-                onPressed: backupController.isBackingUp.value
-                    ? null
-                    : () => backupController.performBackup(),
-                child: const Text("Backup Now"),
-              )),
+              backupController.lastBackup.value.isEmpty ? 'Never' : backupController.lastBackup.value,
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            )),
+            const SizedBox(height: 16),
+            // Progress Indicator (if backing up)
+            Obx(() {
+              if (!backupController.isBackingUp.value) return const SizedBox.shrink();
+              final progressPercent = (backupController.uploadProgress.value * 100).toStringAsFixed(2);
+              final uploaded = formatBytes(backupController.uploadedBytes.value);
+              final total = formatBytes(backupController.totalBytes.value);
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  LinearProgressIndicator(
+                    value: backupController.uploadProgress.value,
+                    minHeight: 6,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    "Uploaded: $uploaded / $total ($progressPercent%)",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ],
+              );
+            }),
+            const SizedBox(height: 16),
+            // Action Buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Button(
+                  onPressed: backupController.isBackingUp.value ? null : () => backupController.performBackup(),
+                  text: "Backup Now",
+                ),
+                const SizedBox(width: 16),
+                Obx(() => backupController.isBackingUp.value
+                    ? Button(
+                  onPressed: () {
+                    backupController.isCancelled.value = true;
+                  },
+                  text: "Cancel Backup",
+                  type: ButtonType.secondary,
+                )
+                    : const SizedBox.shrink()),
+              ],
             ),
           ],
         ),
       ),
+      actions: [
+        Button(
+          type: ButtonType.secondary,
+          onPressed: () => Get.back(),
+          text: "Close",
+        ),
+      ],
     );
   }
 }

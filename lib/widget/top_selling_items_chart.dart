@@ -23,7 +23,7 @@ class TopSellingProductsChart extends StatelessWidget {
       // Generate unique colors for each section
       List<Color> sectionColors = List.generate(
         data.length,
-        (index) => Colors.primaries[index % Colors.primaries.length].withOpacity(0.8),
+        (index) => Colors.primaries[index % Colors.primaries.length].withValues(alpha: 0.8),
       );
 
       // Convert data into PieChartSectionData

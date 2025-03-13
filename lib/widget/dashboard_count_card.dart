@@ -21,7 +21,7 @@ class DashboardCountCard extends StatelessWidget {
         height: 140,
         child: InkWell(
           onTap: () => Get.toNamed('/complaint-list', arguments: complaintType),
-          splashColor: colors.primary.withOpacity(0.5),
+          splashColor: colors.primary.withValues(alpha:0.5),
           child: Card(
               shape: RoundedRectangleBorder(
                 side: BorderSide(color: colors.primary, width: 2.0),

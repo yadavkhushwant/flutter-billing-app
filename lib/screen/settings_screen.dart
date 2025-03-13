@@ -8,8 +8,6 @@ import 'package:billing_application/widget/input_decoration.dart';
 import 'package:billing_application/controller/settings_controller.dart';
 import 'package:billing_application/controller/theme_controller.dart';
 
-import '../widget/database_backup_card.dart';
-
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
 
@@ -154,9 +152,6 @@ class SettingsScreen extends StatelessWidget {
                             text: "Save Settings",
                           ),
                         ),
-                        // Backup Card Section
-                        DatabaseBackupCard(),
-                        const SizedBox(height: 20),
                       ],
                     ),
                   ),

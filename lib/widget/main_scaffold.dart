@@ -1,9 +1,6 @@
-import 'package:billing_application/data/database_helper.dart';
-import 'package:billing_application/drive_backup_restore/another.dart';
-import 'package:billing_application/drive_backup_restore/google_drive_backup.dart';
-import 'package:billing_application/drive_backup_restore/google_drive_service.dart';
 import 'package:billing_application/utils/ui_utils.dart';
 import 'package:billing_application/widget/button.dart';
+import 'package:billing_application/widget/database_backup_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'navigation_menu.dart';
@@ -30,15 +27,16 @@ class MainScaffold extends StatelessWidget {
           ),
         ),
         actions: [
-          Button(
-            type: ButtonType.secondary,
-            text: 'Backup',
-            onPressed: () async {
-              final db = await DatabaseHelper.instance.database;
-              final dbPath = db.path;
-              print(dbPath);
-              //uploadDatabaseToDrive();
-            },
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Button(
+              type: ButtonType.secondary,
+              text: 'Backup Data',
+              onPressed: () async {
+                Get.dialog(DatabaseBackupCard());
+              },
+              leadingIcon: Icons.cloud_upload_rounded,
+            ),
           ),
 
         ],

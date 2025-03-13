@@ -316,8 +316,6 @@ class SalesReportRepository {
   ORDER BY DATE(sale_date);
 ''');
 
-    print("Raw SQL Result: $result"); // Debugging
-
     // Ensure we have all 7 days
     List<Map<String, dynamic>> finalSales = [];
     DateTime today = DateTime.now();
@@ -335,7 +333,6 @@ class SalesReportRepository {
       finalSales.add(existingData);
     }
 
-    print("Processed Final Sales: $finalSales"); // Debugging
     return finalSales;
   }
 
