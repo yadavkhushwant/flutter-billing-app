@@ -102,12 +102,13 @@ class BackupController extends GetxController {
   /// **LOGIN Function (Does NOT trigger backup)**
   Future<void> login() async {
     try {
-      print("khushwant00");
       final client = await getAuthenticatedClient();
       final email = await getUserEmail(client);
       if (email != null) {
         backupEmail.value = email;
         debugPrint("Authenticated as: $email");
+      }else{
+        debugPrint("Failed to authenticate");
       }
       client.close();
     } catch (e) {
@@ -229,7 +230,8 @@ Future<String?> getUserEmail(http.Client client) async {
   try {
     final response =
     await client.get(Uri.parse("https://www.googleapis.com/oauth2/v3/userinfo"));
-    print(response.toString());
+    print("response Status: ${response.statusCode}");
+    print("response Body: ${response.body}");
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return data["email"];

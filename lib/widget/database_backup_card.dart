@@ -40,36 +40,6 @@ class DatabaseBackupCard extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
 
-         /*   Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Obx(() => Text(
-                      backupController.backupEmail.value.isEmpty
-                          ? 'Not Authenticated'
-                          : backupController.backupEmail.value,
-                      style: const TextStyle(fontWeight: FontWeight.w500),
-                    )),
-                const SizedBox(height: 8),
-                Center(
-                  child: Obx(() {
-                    if (backupController.backupEmail.value.isEmpty) {
-                      return Button(
-                        type: ButtonType.primary,
-                        onPressed: () => backupController.login(),
-                        // Only logs in
-                        text: "Login",
-                      );
-                    } else {
-                      return Button(
-                        type: ButtonType.secondary,
-                        onPressed: () => backupController.clearCredentials(),
-                        text: "Logout",
-                      );
-                    }
-                  }),
-                ),
-              ],
-            ),*/
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -97,25 +67,43 @@ class DatabaseBackupCard extends StatelessWidget {
 
                 const SizedBox(height: 8),
 
-                Center(
-                  child: Obx(() {
-                    if (backupController.isLoadingEmail.value) {
-                      return const SizedBox(); // Hide buttons while loading
-                    }
-                    if (backupController.backupEmail.value.isEmpty) {
-                      return Button(
-                        type: ButtonType.primary,
-                        onPressed: () => backupController.login(),
-                        text: "Login",
-                      );
-                    } else {
-                      return Button(
-                        type: ButtonType.secondary,
-                        onPressed: () => backupController.clearCredentials(),
-                        text: "Logout",
-                      );
-                    }
-                  }),
+                Row(
+                  spacing: 3,
+                  children: [
+                    Center(
+                      child: Obx(() {
+                        if (backupController.isLoadingEmail.value) {
+                          return const SizedBox(); // Hide buttons while loading
+                        }
+                        if (backupController.backupEmail.value.isEmpty) {
+                          return Button(
+                            type: ButtonType.primary,
+                            onPressed: () => backupController.login(),
+                            text: "Login",
+                          );
+                        } else {
+                          return Button(
+                            type: ButtonType.secondary,
+                            onPressed: () => backupController.clearCredentials(),
+                            text: "Logout",
+                          );
+                        }
+                      }),
+                    ),
+
+                    Center(
+                      child: Obx(() {
+                        if (backupController.isLoadingEmail.value) {
+                          return const SizedBox(); // Hide buttons while loading
+                        }
+                        return Button(
+                          type: ButtonType.secondary,
+                          onPressed: () => backupController.clearCredentials(),
+                          text: "Logout",
+                        );
+                      }),
+                    ),
+                  ],
                 ),
               ],
             ),
