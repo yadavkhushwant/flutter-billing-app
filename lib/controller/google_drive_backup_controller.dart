@@ -230,8 +230,8 @@ Future<String?> getUserEmail(http.Client client) async {
   try {
     final response =
     await client.get(Uri.parse("https://www.googleapis.com/oauth2/v3/userinfo"));
-    print("response Status: ${response.statusCode}");
-    print("response Body: ${response.body}");
+    debugPrint("response Status: ${response.statusCode}");
+    debugPrint("response Body: ${response.body}");
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return data["email"];
